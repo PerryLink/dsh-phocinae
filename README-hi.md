@@ -31,20 +31,40 @@ Node `^22.19` या `>=24` चाहिए, और एक पहुँच म�
 
 ### version pin करें
 
-बिना version का `add dsh-phocinae` pnpm के supply-chain age gate से resolve होता है
-(`minimumReleaseAge`, default में चालू, साथ में एक `minimumReleaseAgeExclude` सूची)। बहुत हाल में
-publish हुए packages रोक लिए जाते हैं, इसलिए सिर्फ़ नाम किसी **पुराने** release पर resolve हो सकता है।
-मापा गया:
+`add dsh-phocinae` pnpm के supply-chain age gate
+(`minimumReleaseAge`) से resolve होता है। gate की threshold से नया कोई release
+चुना नहीं जाता, इसलिए **publish के बाद कुछ समय तक बिना version वाला नाम पिछले
+version पर ही resolve होता है** — और यहाँ पिछला version 0.1.2 है, जो काम नहीं करता।
 
-| command | resolve हुआ |
-|---|---|
-| `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — टूटी हुई build, `main: index.js` |
-| `dsh plugin --profile p add dsh-phocinae@0.2.2` | **0.2.2** — `./index.mjs`, skill मौजूद, host साफ़ boot होता है |
-| profile के `pnpm-workspace.yaml` में `minimumReleaseAge: 0` के साथ वही बिना-version add | 0.2.2 |
+एक ही मशीन पर, कुछ मिनटों के अंतराल पर मापा गया:
 
-Age gate एक अच्छा default है; इसका मतलब बस इतना है कि version का नाम लेना पड़ता है। इसे pin करें।
+| कब | command | resolve हुआ |
+|---|---|---|
+| order 0.2.2 publish + 2 मिनट | `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — `main: index.js`, वह build जो activate ही नहीं कर सकती |
+| वही, पर `add dsh-phocinae@0.2.2` | | **0.2.2** — `./index.mjs`, skill मौजूद |
+| वही, `minimumReleaseAge: 0` के साथ बिना version वाला add, profile के `pnpm-workspace.yaml` में | | **0.2.2** |
+| order 0.2.2 publish + 150 मिनट | `dsh plugin --profile p add dsh-phocinae` | **0.2.2** — `^0.2.2`, host साफ़ boot होता है |
 
-Git और local checkouts भी उसी तरह काम करते हैं:
+जब gate किसी version को रोक लेता है, तो harness उस इनकार को profile के
+`pnpm-workspace.yaml` में दर्ज कर देता है:
+
+```yaml
+minimumReleaseAgeExclude:
+  - dsh-phocinae@0.2.2
+```
+
+Gate एक ठोस default है — बिल्कुल ताज़ा publish हुआ package supply-chain attack जैसा ही
+दिखता है। इसका मतलब यह ज़रूर है कि **version का नाम लेना चाहिए**, ताकि ठीक किया हुआ
+build तुरंत मिल जाए और install reproducible रहे:
+
+```sh
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
+```
+
+अगर बिना version वाला add आपको 0.1.2 पर पहुँचा ही दे, तो `dsh <profile> --dump-config`
+दिखाता है कि कौन सा version mount है, और pinned spec के साथ दोबारा add करने पर वह बदल जाता है।
+
+Git और local checkouts भी उसी तरह काम करते हैं, और वे बनावट से ही pin होते हैं:
 
 ```sh
 dsh plugin --profile <name> add github:Phocinae/dsh-phocinae#v0.2.2

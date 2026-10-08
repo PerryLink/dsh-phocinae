@@ -31,20 +31,41 @@ Medido en esta máquina, con un `DSH_HOME` desechable:
 
 ### Fija la versión
 
-`add dsh-phocinae` sin versión resuelve a través de la puerta de antigüedad de la cadena de suministro de pnpm
-(`minimumReleaseAge`, activada por defecto, con una lista `minimumReleaseAgeExclude`). Los paquetes
-publicados demasiado recientemente se retienen, así que el nombre sin versión puede resolver a una versión
-**más antigua**. Medido:
+`add dsh-phocinae` resuelve a través de la puerta de antigüedad de la cadena de suministro de pnpm
+(`minimumReleaseAge`). Una versión más reciente que el umbral de la puerta no se selecciona, así que
+**durante un tiempo después de una publicación el nombre sin versión resuelve a la versión anterior**
+— y la versión anterior aquí es 0.1.2, que no funciona.
 
-| comando | resolvió a |
-|---|---|
-| `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — la compilación rota, `main: index.js` |
-| `dsh plugin --profile p add dsh-phocinae@0.2.2` | **0.2.2** — `./index.mjs`, skill presente, el host arranca limpio |
-| el mismo add sin versión con `minimumReleaseAge: 0` en el `pnpm-workspace.yaml` del perfil | 0.2.2 |
+Medido, con minutos de diferencia, en la misma máquina:
 
-La puerta de antigüedad es un buen valor por defecto; solo significa que hay que nombrar la versión. Fíjala.
+| cuándo | comando | resolvió a |
+|---|---|---|
+| 0.2.2 publicado + 2 min | `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — `main: index.js`, la compilación que no puede activarse |
+| lo mismo, pero con `add dsh-phocinae@0.2.2` | | **0.2.2** — `./index.mjs`, skill presente |
+| lo mismo, add sin versión con `minimumReleaseAge: 0` en el `pnpm-workspace.yaml` del perfil | | **0.2.2** |
+| 0.2.2 publicado + 150 min | `dsh plugin --profile p add dsh-phocinae` | **0.2.2** — `^0.2.2`, el host arranca limpio |
 
-Las instalaciones desde Git y desde un checkout local funcionan igual:
+Cuando la puerta retiene una versión, el harness registra el rechazo en el `pnpm-workspace.yaml` del
+perfil:
+
+```yaml
+minimumReleaseAgeExclude:
+  - dsh-phocinae@0.2.2
+```
+
+La puerta es un buen valor por defecto — un paquete recién publicado es exactamente el aspecto de un
+ataque a la cadena de suministro. Solo significa que **hay que nombrar la versión**, tanto para obtener
+la compilación corregida de inmediato como para que la instalación sea reproducible:
+
+```sh
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
+```
+
+Si un add sin versión te deja en 0.1.2, `dsh <profile> --dump-config` muestra qué versión está montada,
+y volver a añadir con la especificación fijada la reemplaza.
+
+Las instalaciones desde Git y desde un checkout local funcionan igual, y fijan la versión por
+construcción:
 
 ```sh
 dsh plugin --profile <name> add github:Phocinae/dsh-phocinae#v0.2.2

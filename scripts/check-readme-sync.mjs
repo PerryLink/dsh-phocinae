@@ -13,7 +13,15 @@
  *   3. every identifier a reader might paste (config keys, tool names, event
  *      names, package name, file paths) appears in every translation;
  *   4. section headings are the same count and the same order;
- *   5. every translation ends with exactly one newline.
+ *   5. every translation ends with exactly one newline;
+ *   6. STRUCTURAL parity — the same number of fenced code blocks, carrying the
+ *      same languages in the same order, and the same number of table rows.
+ *
+ * Check 6 exists because checks 2-5 pass on a translation that is quietly
+ * missing a whole code block: the identifiers it shares with the source are
+ * still present somewhere in the prose, the heading count is unchanged, and
+ * every literal the checker knows about still appears. A stale translation of
+ * one subsection is exactly that shape, and one shipped.
  *
  * Usage: node scripts/check-readme-sync.mjs
  */
@@ -59,6 +67,34 @@ function headings(text) {
   return text.split('\n').filter((line) => /^#{1,6}\s/.test(line)).map((line) => line.trim())
 }
 
+/**
+ * Structural profile of a README: fenced code blocks and table rows.
+ *
+ * Fence-aware on purpose — a shell comment inside a code block starts with `#`
+ * and would otherwise be counted as a heading, which is how an earlier attempt
+ * at this check reported phantom mismatches.
+ */
+function structure(text) {
+  let insideFence = false
+  let blocks = 0
+  let rows = 0
+  const langs = []
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim()
+    if (trimmed.startsWith('```')) {
+      if (!insideFence) {
+        blocks += 1
+        langs.push(trimmed.slice(3).trim() || '(plain)')
+      }
+      insideFence = !insideFence
+      continue
+    }
+    if (insideFence) continue
+    if (trimmed.startsWith('|')) rows += 1
+  }
+  return { blocks, rows, langs }
+}
+
 let failures = 0
 const fail = (message) => {
   failures += 1
@@ -79,6 +115,7 @@ else fail(`${SOURCE}: first line is not the canonical language switcher`)
 const sourceNumbers = numbers(source)
 const sourceIds = identifiers(source)
 const sourceHeadings = headings(source)
+const sourceShape = structure(source)
 
 for (const file of TRANSLATIONS) {
   const full = path.join(root, file)
@@ -115,6 +152,20 @@ for (const file of TRANSLATIONS) {
 
   if (!text.endsWith('\n') || text.endsWith('\n\n')) {
     fail(`${file}: must end with exactly one newline`)
+  }
+
+  const fileShape = structure(text)
+  if (fileShape.blocks !== sourceShape.blocks) {
+    fail(`${file}: ${fileShape.blocks} code blocks against ${sourceShape.blocks} in ${SOURCE}` +
+      ' — a whole block is missing or extra')
+  }
+  if (JSON.stringify(fileShape.langs) !== JSON.stringify(sourceShape.langs)) {
+    fail(`${file}: code-block languages differ from ${SOURCE}\n` +
+      `    source      : ${sourceShape.langs.join(', ')}\n` +
+      `    translation : ${fileShape.langs.join(', ')}`)
+  }
+  if (fileShape.rows !== sourceShape.rows) {
+    fail(`${file}: ${fileShape.rows} table rows against ${sourceShape.rows} in ${SOURCE}`)
   }
 
   if (failures === 0) ok(`${file} is in sync`)
