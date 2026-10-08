@@ -9,11 +9,64 @@
 这是 **0.2.2**，一个修复版本。0.1.2 版插件在 DSH 0.2.x 上完全无法激活：harness 只记了一条警告，入口就死了。*Fixed in 0.2.2* 一节之后的所有内容，讲的就是改了什么以及为什么改。
 
 ```sh
-npm i dsh-phocinae
-dsh plugin --profile <name> add dsh-phocinae
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
 ```
 
 需要 Node `^22.19` 或 `>=24`，以及一个可访问的决策服务（见 [运行决策服务](#running-the-decision-service)）。
+
+### 只跑 `npm i` 并不会安装这个插件
+
+必须发生两件相互独立的事，而只有第二件才会挂载插件：
+
+| 步骤 | 作用 |
+|---|---|
+| `npm i dsh-phocinae` | 把包装进**当前目录的** `node_modules`。适合阅读代码或直接导入 guard。它**不会**触及任何 DSH profile。 |
+| `dsh plugin --profile <name> add dsh-phocinae@0.2.2` | 把它加进**那个 profile 的** `package.json`（`dependencies` **和** `dsh.profile.bundles`），并用 pnpm 安装到那里。这才是让宿主挂载它的原因。 |
+
+在本机上用一个一次性的 `DSH_HOME` 实测：
+
+- 在一个无关目录里执行 `npm i dsh-phocinae` → 包装在了那里，profile 的 `dependencies` 仍是 `{}`，profile 的 `bundles` 没有变化，**`dsh <profile> --dump-config` 中不含该插件**；
+- `dsh plugin --profile p add dsh-phocinae` → 该 profile 同时获得依赖项和 bundle 条目，合成后的配置里包含带 endpoint 的 `phocinae` 行；
+- 一个**没有** `dsh.profile.bundles` 条目的依赖 → 安装了但**未被挂载**，因为加载器遍历的正是 bundle 列表。
+
+### 锁定版本
+
+不带版本号的 `add dsh-phocinae` 会经由 pnpm 的供应链年龄门槛（`minimumReleaseAge`）解析。
+比门槛更"年轻"的发行版不会被选中，所以**在一次发布之后的相当一段时间里，裸名称会解析到
+上一个版本**——而这里的上一个版本是 0.1.2，它不能用。
+
+同一台机器上、相隔若干分钟的实测：
+
+| 时点 | 命令 | 解析到 |
+|---|---|---|
+| 0.2.2 发布后 + 2 分钟 | `dsh plugin --profile p add dsh-phocinae` | **0.1.2** —— `main: index.js`，那个无法激活的构建 |
+| 同上，但用 `add dsh-phocinae@0.2.2` | | **0.2.2** —— `./index.mjs`，skill 存在 |
+| 同上，裸添加但 profile 的 `pnpm-workspace.yaml` 中带 `minimumReleaseAge: 0` | | **0.2.2** |
+| 0.2.2 发布后 + 150 分钟 | `dsh plugin --profile p add dsh-phocinae` | **0.2.2** —— `^0.2.2`，宿主启动干净 |
+
+当门槛拦下一个版本时，harness 会把这次拒绝记进 profile 的 `pnpm-workspace.yaml`：
+
+```yaml
+minimumReleaseAgeExclude:
+  - dsh-phocinae@0.2.2
+```
+
+年龄门槛是个合理的默认值——刚刚发布的包，正是供应链攻击的样子。它只意味着
+**版本应当被点名**，既能立刻拿到修复版，也让安装可复现：
+
+```sh
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
+```
+
+如果裸添加真的把你带到了 0.1.2，用 `dsh <profile> --dump-config` 可以看出挂载的是哪个版本，
+再用点名版本的规格重新添加即可替换。
+
+Git 和本地 checkout 的用法相同，而且天然就锁定了版本：
+
+```sh
+dsh plugin --profile <name> add github:Phocinae/dsh-phocinae#v0.2.2
+dsh plugin --profile <name> add /path/to/a/local/checkout
+```
 
 ---
 

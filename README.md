@@ -9,11 +9,67 @@
 This is **0.2.2**, a repair release. The 0.1.2 plugin did not activate at all on DSH 0.2.x: the harness logged one warning and the entry died. Everything below the *Fixed in 0.2.2* section is what changed and why.
 
 ```sh
-npm i dsh-phocinae
-dsh plugin --profile <name> add dsh-phocinae
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
 ```
 
 Requires Node `^22.19` or `>=24`, and a reachable decision service (see [Running the decision service](#running-the-decision-service)).
+
+### `npm i` alone does not install the plugin
+
+Two separate things have to happen, and only the second one mounts the plugin:
+
+| step | what it does |
+|---|---|
+| `npm i dsh-phocinae` | Puts the package in **the current directory's** `node_modules`. Useful for reading the code or importing the guard directly. It does **not** reach any DSH profile. |
+| `dsh plugin --profile <name> add dsh-phocinae@0.2.2` | Adds it to **that profile's** `package.json` (`dependencies` **and** `dsh.profile.bundles`) and installs it there with pnpm. This is what makes the host mount it. |
+
+Measured on this machine, with a throwaway `DSH_HOME`:
+
+- `npm i dsh-phocinae` in an unrelated directory → installed there, profile `dependencies` still `{}`, profile `bundles` unchanged, **plugin absent from `dsh <profile> --dump-config`**;
+- `dsh plugin --profile p add dsh-phocinae` → the profile gains both the dependency and the bundle entry, and the composed config contains the `phocinae` row with its endpoint;
+- a dependency **without** the `dsh.profile.bundles` entry → installed but **not mounted**, because the bundle list is what the loader walks.
+
+### Pin the version
+
+`add dsh-phocinae` resolves through pnpm's supply-chain age gate
+(`minimumReleaseAge`). A release younger than the gate's threshold is not
+selected, so **for a while after a publish the bare name resolves to the previous
+version** — and the previous version here is 0.1.2, which does not work.
+
+Measured, minutes apart, on the same machine:
+
+| when | command | resolved to |
+|---|---|---|
+| order 0.2.2 published + 2 min | `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — `main: index.js`, the build that cannot activate |
+| same, but `add dsh-phocinae@0.2.2` | | **0.2.2** — `./index.mjs`, skill present |
+| same, bare add with `minimumReleaseAge: 0` in the profile's `pnpm-workspace.yaml` | | **0.2.2** |
+| order 0.2.2 published + 150 min | `dsh plugin --profile p add dsh-phocinae` | **0.2.2** — `^0.2.2`, host boots clean |
+
+When the gate holds a version back, the harness records the refusal in the
+profile's `pnpm-workspace.yaml`:
+
+```yaml
+minimumReleaseAgeExclude:
+  - dsh-phocinae@0.2.2
+```
+
+The gate is a sound default — a freshly published package is exactly what a
+supply-chain attack looks like. It does mean **the version should be named**, both
+to get the fixed build immediately and to make an install reproducible:
+
+```sh
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
+```
+
+If a bare add does land you on 0.1.2, `dsh <profile> --dump-config` shows which
+version is mounted, and re-adding with the pinned spec replaces it.
+
+Git and local checkouts work the same way, and pin by construction:
+
+```sh
+dsh plugin --profile <name> add github:Phocinae/dsh-phocinae#v0.2.2
+dsh plugin --profile <name> add /path/to/a/local/checkout
+```
 
 ---
 

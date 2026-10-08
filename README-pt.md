@@ -9,11 +9,67 @@ Ferramentas `phocinae_ask` / `phocinae_gate` apoiadas em um servidor [Phocinae-L
 Esta é a **0.2.2**, uma versão de correção. O complemento 0.1.2 não ativava de forma alguma no DSH 0.2.x: o harness registrava um aviso e a entrada morria. Tudo o que vem abaixo da seção *Corrigido na 0.2.2* é o que mudou e por quê.
 
 ```sh
-npm i dsh-phocinae
-dsh plugin --profile <name> add dsh-phocinae
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
 ```
 
 Requer Node `^22.19` ou `>=24`, e um serviço de decisão acessível (veja [Executando o serviço de decisão](#running-the-decision-service)).
+
+### `npm i` sozinho não instala o complemento
+
+Duas coisas separadas precisam acontecer, e apenas a segunda monta o complemento:
+
+| etapa | o que ela faz |
+|---|---|
+| `npm i dsh-phocinae` | Coloca o pacote no `node_modules` **do diretório atual**. Útil para ler o código ou importar a guarda diretamente. Ele **não** alcança nenhum perfil do DSH. |
+| `dsh plugin --profile <name> add dsh-phocinae@0.2.2` | Adiciona-o ao `package.json` **daquele perfil** (`dependencies` **e** `dsh.profile.bundles`) e o instala ali com o pnpm. É isso que faz o host montá-lo. |
+
+Medido nesta máquina, com um `DSH_HOME` descartável:
+
+- `npm i dsh-phocinae` em um diretório sem relação → instalado ali, `dependencies` do perfil ainda `{}`, `bundles` do perfil inalterado, **complemento ausente de `dsh <profile> --dump-config`**;
+- `dsh plugin --profile p add dsh-phocinae` → o perfil ganha tanto a dependência quanto a entrada de bundle, e a configuração composta contém a linha `phocinae` com seu endpoint;
+- uma dependência **sem** a entrada `dsh.profile.bundles` → instalada mas **não montada**, porque a lista de bundles é o que o carregador percorre.
+
+### Fixe a versão
+
+`add dsh-phocinae` resolve pelo portão de idade da cadeia de suprimentos do pnpm
+(`minimumReleaseAge`). Uma versão mais recente que o limiar do portão não é
+selecionada, então **por um tempo após uma publicação o nome puro resolve para a versão
+anterior** — e a versão anterior aqui é a 0.1.2, que não funciona.
+
+Medido, com minutos de diferença, na mesma máquina:
+
+| quando | comando | resolveu para |
+|---|---|---|
+| publicação da 0.2.2 + 2 min | `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — `main: index.js`, a build que não consegue ativar |
+| o mesmo, mas `add dsh-phocinae@0.2.2` | | **0.2.2** — `./index.mjs`, skill presente |
+| o mesmo, add puro com `minimumReleaseAge: 0` no `pnpm-workspace.yaml` do perfil | | **0.2.2** |
+| publicação da 0.2.2 + 150 min | `dsh plugin --profile p add dsh-phocinae` | **0.2.2** — `^0.2.2`, o host inicializa sem avisos |
+
+Quando o portão retém uma versão, o harness registra a recusa no
+`pnpm-workspace.yaml` do perfil:
+
+```yaml
+minimumReleaseAgeExclude:
+  - dsh-phocinae@0.2.2
+```
+
+O portão é um padrão sensato — um pacote recém-publicado é exatamente com o que se
+parece um ataque à cadeia de suprimentos. Ele significa, porém, que **a versão deve ser nomeada**, tanto
+para obter imediatamente a build corrigida quanto para tornar uma instalação reproduzível:
+
+```sh
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
+```
+
+Se um add puro acabar deixando você na 0.1.2, `dsh <profile> --dump-config` mostra qual
+versão está montada, e adicionar de novo com a especificação fixada a substitui.
+
+Checkouts do Git e locais funcionam da mesma maneira, e já fixam a versão por construção:
+
+```sh
+dsh plugin --profile <name> add github:Phocinae/dsh-phocinae#v0.2.2
+dsh plugin --profile <name> add /path/to/a/local/checkout
+```
 
 ---
 

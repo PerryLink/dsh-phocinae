@@ -9,11 +9,47 @@
 यह **0.2.2** है, एक repair release। 0.1.2 plugin DSH 0.2.x पर बिल्कुल activate ही नहीं हुआ: harness ने एक warning log की और entry दम तोड़ गई। *0.2.2 में क्या ठीक हुआ* section से नीचे का हर हिस्सा बताता है कि क्या बदला और क्यों।
 
 ```sh
-npm i dsh-phocinae
-dsh plugin --profile <name> add dsh-phocinae
+dsh plugin --profile <name> add dsh-phocinae@0.2.2
 ```
 
 Node `^22.19` या `>=24` चाहिए, और एक पहुँच में आने वाली decision service (देखें [Running the decision service](#running-the-decision-service))।
+
+### सिर्फ़ `npm i` से plugin install नहीं होता
+
+दो अलग-अलग चीज़ें होनी ज़रूरी हैं, और plugin सिर्फ़ दूसरी वाली mount करती है:
+
+| चरण | यह क्या करता है |
+|---|---|
+| `npm i dsh-phocinae` | package को **मौजूदा directory के** `node_modules` में डालता है। Code पढ़ने या guard को सीधे import करने के लिए उपयोगी। यह किसी भी DSH profile तक **नहीं** पहुँचता। |
+| `dsh plugin --profile <name> add dsh-phocinae@0.2.2` | इसे **उस profile के** `package.json` में जोड़ता है (`dependencies` **और** `dsh.profile.bundles`) और pnpm से वहीं install करता है। यही वह चीज़ है जो host को इसे mount करने देती है। |
+
+इस मशीन पर, एक throwaway `DSH_HOME` के साथ मापा गया:
+
+- किसी असंबंधित directory में `npm i dsh-phocinae` → वहीं install हो गया, profile की `dependencies` अब भी `{}`, profile के `bundles` अपरिवर्तित, **`dsh <profile> --dump-config` में plugin मौजूद ही नहीं**;
+- `dsh plugin --profile p add dsh-phocinae` → profile को dependency और bundle entry, दोनों मिल जाती हैं, और composed config में endpoint के साथ `phocinae` row आ जाती है;
+- `dsh.profile.bundles` entry के **बिना** कोई dependency → install तो हो जाती है पर **mount नहीं होती**, क्योंकि loader जिस सूची पर चलता है वह bundle list ही है।
+
+### version pin करें
+
+बिना version का `add dsh-phocinae` pnpm के supply-chain age gate से resolve होता है
+(`minimumReleaseAge`, default में चालू, साथ में एक `minimumReleaseAgeExclude` सूची)। बहुत हाल में
+publish हुए packages रोक लिए जाते हैं, इसलिए सिर्फ़ नाम किसी **पुराने** release पर resolve हो सकता है।
+मापा गया:
+
+| command | resolve हुआ |
+|---|---|
+| `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — टूटी हुई build, `main: index.js` |
+| `dsh plugin --profile p add dsh-phocinae@0.2.2` | **0.2.2** — `./index.mjs`, skill मौजूद, host साफ़ boot होता है |
+| profile के `pnpm-workspace.yaml` में `minimumReleaseAge: 0` के साथ वही बिना-version add | 0.2.2 |
+
+Age gate एक अच्छा default है; इसका मतलब बस इतना है कि version का नाम लेना पड़ता है। इसे pin करें।
+
+Git और local checkouts भी उसी तरह काम करते हैं:
+
+```sh
+dsh plugin --profile <name> add github:Phocinae/dsh-phocinae#v0.2.2
+dsh plugin --profile <name> add /path/to/a/local/checkout
+```
 
 ---
 
