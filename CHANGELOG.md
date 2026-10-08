@@ -2,10 +2,13 @@
 
 ## [0.2.1] — 2026-10-08
 
-No code change from 0.2.0. That version was staged on the registry by a publish
-attempt that the registry never completed, and npm refuses to publish over a
-staged version (`E409 Cannot publish over previously staged version`), so the
-same tree ships as 0.2.1.
+No code change from 0.2.0.
+
+0.2.0's first publish attempt was interrupted: npm reported success, the registry
+eventually recorded the version, but its tarball was never stored and requests for
+it answer 404. Re-publishing over it is refused (`E409 Cannot publish over
+previously staged version`), so the same tree ships as 0.2.1, and npm carries a
+deprecation notice on 0.2.0. Install 0.2.1 or later.
 
 ## [0.2.0] — 2026-10-08
 
