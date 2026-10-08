@@ -1,0 +1,11 @@
+# Normalise line endings in the repository: every text file is stored with LF so
+# the published tarball is identical whoever packs it. Without this, a Windows
+# checkout commits CRLF and the release workflow's `npm publish` ships files that
+# differ from the ones the tests ran against.
+* text=auto eol=lf
+
+# Binary fixtures must never be touched.
+*.png binary
+*.jpg binary
+*.gif binary
+*.tgz binary

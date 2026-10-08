@@ -1,0 +1,8 @@
+node_modules/
+dev/
+*.tmp
+.rc6-check/
+*.tgz
+# Local release driver: it reads the workspace's plaintext credential file by
+# path, so it must never be committed.
+release.mjs

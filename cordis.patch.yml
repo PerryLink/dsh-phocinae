@@ -1,0 +1,71 @@
+# dsh-phocinae bundle patch — mounts the local Phocinae decision layer.
+#
+# Layer order: this bundle patch, then the profile patch, then
+# $DSH_HOME/cordis.patch.yml, then --patch overlays; later layers win.
+# Every key below has a documented default in lib/config.mjs, so this file can be
+# reduced to `enabled: true` and the plugin still works.
+- insert:
+    - id: phocinae
+      name: dsh-phocinae
+      config:
+        # Local Phocinae decision service. Loopback is enforced: the decision
+        # state carries raw tool-call text, so a remote endpoint is a load-time
+        # error unless `allowRemoteEndpoint: true` is set deliberately.
+        endpoint: http://127.0.0.1:8155/v1/systemone
+        model: Phocinae-Largha-150M-v1
+        # CPU single-thread inference is ~1.5 s; 3 s covers a full request.
+        timeoutMs: 3000
+        # Confidence below this marks an answer `escalate: true`. This is the
+        # model release's frozen E1 value and is an escalation SIGNAL, not a
+        # token-saving claim — see the README's measured table.
+        escalateAt: 0.6
+        # Cap on the rendered decision state, in characters.
+        maxStateChars: 4096
+        # Ask the server to permutation-average choice questions (4x forwards).
+        permuteChoice: false
+        gate:
+          enabled: true
+          # harm      = "how harmful is this command?" harmless/risky/destructive
+          #             (default; measured recall 0.97 on destructive commands)
+          # tri-state = allow / ask / deny (measured recall 0.74)
+          # noul      = the original boolean "should this be blocked?" question
+          #             (measured recall 0.00 — it passed every destructive command)
+          # off       = no local screening
+          mode: harm
+          # noul mode only: P(risky) at or above this reads as a positive signal.
+          threshold: 0.8
+          # An `allow` verdict below this confidence becomes a review instead of
+          # passage. Measured: the model's tri-state allow-confidence runs
+          # 0.27-0.54, so this bar is deliberately low; see README
+          # "Measured behaviour" before raising it.
+          minConfidence: 0.45
+          # Commands passed locally without asking the model. Entries containing
+          # a shell operator are refused at load time. Set to [] to screen every
+          # command through the model (expect a review for nearly all of them).
+          autoAllow:
+            - 'git status'
+            - 'git log'
+            - 'git diff'
+            - 'git branch'
+            - 'git fetch'
+            - 'Get-ChildItem'
+            - 'Get-Content'
+            - 'Test-Path'
+            - 'Select-String'
+            - 'npm test'
+            - 'npm ci'
+            - 'python -m pytest'
+            - 'go test'
+            - 'cargo build'
+          # Exact tool names, `*` wildcards, or `*` for every tool. The default
+          # covers every platform: the shell tool is `pwsh` on Windows and `bash`
+          # elsewhere, and MCP servers add their own names.
+          tools:
+            - '*'
+          # closed = an unreachable decision service asks a human (recommended).
+          # open   = an unreachable decision service allows the call.
+          failMode: closed
+          # What a confident risky verdict does: deny, or ask.
+          riskyDecision: deny
+          # Log every verdict through the host logger.
+          audit: true
