@@ -1,0 +1,82 @@
+name: Gitee mirror
+
+# Mirrors this repository to Gitee.
+#
+# Why a workflow instead of a push from the release script: Gitee's API token can
+# create repositories but cannot authenticate a git push — measured from two
+# hosts, both basic-auth forms answer 403, because git only consults a credential
+# helper after a 401 challenge and Gitee never issues one for this token. SSH
+# works, so the mirror lives here where the key can be a repository secret.
+#
+# Setup, once:
+#   1. generate a deploy key or use an account key, and add its PUBLIC half to
+#      Gitee under Settings -> SSH public keys;
+#   2. store the PRIVATE half as the repository secret GITEE_SSH_KEY;
+#   3. store Gitee's host key line as GITEE_SSH_KNOWN_HOSTS
+#      (`ssh-keyscan gitee.com` — pin it rather than trusting on first use);
+#   4. create the Gitee repository once (the API can do it; see CHANGELOG).
+#
+# Without the secrets this workflow skips green rather than failing every push.
+
+on:
+  push:
+    branches: ['main']
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for the mirror credentials
+        id: check
+        env:
+          GITEE_SSH_KEY: ${{ secrets.GITEE_SSH_KEY }}
+        run: |
+          if [ -z "${GITEE_SSH_KEY}" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GITEE_SSH_KEY is not configured; skipping the Gitee mirror."
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out the full history
+        if: steps.check.outputs.present == 'true'
+        uses: actions/checkout@v4
+        with:
+          # A mirror needs every ref, not a shallow snapshot: a force-push of a
+          # truncated history would delete refs on the far side.
+          fetch-depth: 0
+
+      - name: Configure the deploy key
+        if: steps.check.outputs.present == 'true'
+        env:
+          GITEE_SSH_KEY: ${{ secrets.GITEE_SSH_KEY }}
+          GITEE_SSH_KNOWN_HOSTS: ${{ secrets.GITEE_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$GITEE_SSH_KEY" > ~/.ssh/gitee
+          chmod 600 ~/.ssh/gitee
+          if [ -n "${GITEE_SSH_KNOWN_HOSTS}" ]; then
+            printf '%s\n' "$GITEE_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            # Recorded rather than trusted silently: the notice below says so.
+            ssh-keyscan -t rsa,ecdsa,ed25519 gitee.com > ~/.ssh/known_hosts 2>/dev/null
+            echo "::notice::GITEE_SSH_KNOWN_HOSTS is unset; gitee.com's host key was scanned at run time."
+          fi
+          {
+            echo "Host gitee.com"
+            echo "  IdentityFile ~/.ssh/gitee"
+            echo "  IdentitiesOnly yes"
+            echo "  StrictHostKeyChecking yes"
+            echo "  BatchMode yes"
+          } > ~/.ssh/config
+
+      - name: Push every ref
+        if: steps.check.outputs.present == 'true'
+        run: |
+          git remote add gitee git@gitee.com:perrylink/dsh-phocinae.git
+          # --mirror keeps branches and tags identical; it never deletes the far
+          # side's own refs because this repository is the only writer.
+          git push --mirror gitee
+          git ls-remote gitee HEAD

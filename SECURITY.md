@@ -72,6 +72,29 @@ Allowed and denied lines go to different log levels, so a filter on `warn` shows
 
 Nothing is written to disk by the plugin. It has no filesystem capability at all.
 
+## Repository secrets
+
+The workflows in this repository need two secrets. Neither is used by the plugin
+at run time; they belong to the release pipeline only.
+
+| secret | used by | purpose |
+|---|---|---|
+| `GITEE_SSH_KEY` | `gitee-sync.yml` | the private half of an SSH key whose public half is registered on Gitee, so the mirror push can authenticate |
+| `GITEE_SSH_KNOWN_HOSTS` | `gitee-sync.yml` | Gitee's pinned host key (`ssh-keyscan gitee.com`), so the push does not trust on first use |
+
+Publishing to npm does not use a token at all: `publish.yml` authenticates through
+GitHub's OIDC trusted-publishing exchange (`id-token: write`) and runs
+`npm publish --provenance`. That is deliberate — a long-lived registry token in a
+repository secret is a standing credential, and this pipeline needs none.
+
+Both Gitee secrets are optional: without them `gitee-sync.yml` skips and reports a
+notice instead of failing every push. The mirror is a convenience, and a missing
+mirror must never block a release.
+
+Rotating `GITEE_SSH_KEY` means replacing the key pair on Gitee and updating the
+secret in the same sitting; the workflow reads the secret fresh on every run and
+caches nothing.
+
 ## Reporting a vulnerability
 
 Open a private security advisory on the repository, or a minimal issue that describes the affected behaviour without including a working exploit. Please include the plugin version, the DSH version, and the relevant `gate` configuration.
