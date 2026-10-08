@@ -24,6 +24,7 @@ Node `^22.19` या `>=24` चाहिए, और एक पहुँच म�
 | `phocinae_ask` | `ctx.tools` | local model पर typed questions का एक batch चलाता है। हर उत्तर के साथ एक calibrated confidence और एक advisory `escalate` flag आता है। |
 | `phocinae_gate` | `ctx.tools` | एक command या action का फैसला करता है: `allow` / `ask` / `deny`, confidence के साथ। Action को चलाए बिना उसे जाँचता है। |
 | approval gate | `tools/pre-execute` waterfall | Configured patterns के दायरे में आने वाली हर tool call को execute होने से पहले छान लेता है। |
+| `phocinae` skill | `ctx.skills` | मॉडल को सिखाता है कि स्थानीय निर्णय कब सही साधन है, प्रश्न कैसे पूछना है, और `escalate` फ़्लैग कैसे पढ़ना है। |
 
 यह model chat model नहीं है। यह text generate नहीं करता, facts नहीं जानता और code नहीं लिख सकता। यह हर forward pass पर एक structured decision लेता है — एक gate को ठीक इतना ही चाहिए, इससे ज़्यादा कुछ नहीं।
 

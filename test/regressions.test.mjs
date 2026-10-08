@@ -48,8 +48,9 @@ function jsonResponse(payload, status = 200) {
 }
 
 /** A host context shaped the way DSH 0.2.1 hands one to a plugin. */
-function makeHost({ withTools = true, toolsThrowsOnUndeclared = true } = {}) {
+function makeHost({ withTools = true, withSkills = true, toolsThrowsOnUndeclared = true } = {}) {
   const registered = []
+  const skills = []
   const listeners = new Map()
   const warnings = []
   const base = {
@@ -68,10 +69,18 @@ function makeHost({ withTools = true, toolsThrowsOnUndeclared = true } = {}) {
         return () => {}
       },
     },
+    skills: {
+      register(definition) {
+        skills.push(definition)
+        return () => {}
+      },
+    },
     inject(deps, callback) {
       // Cordis runs the callback once the named services are available.
       injected.push([...deps])
-      if (withTools) callback(base)
+      if (deps.includes('tools') && !withTools) return
+      if (deps.includes('skills') && !withSkills) return
+      callback(base)
     },
   }
   const injected = []
@@ -90,7 +99,8 @@ function makeHost({ withTools = true, toolsThrowsOnUndeclared = true } = {}) {
     })
   }
   if (!withTools) delete base.tools
-  return { ctx, registered, listeners, warnings, injected }
+  if (!withSkills) delete base.skills
+  return { ctx, registered, skills, listeners, warnings, injected }
 }
 
 /** Drive the pre-execute waterfall the way the tool runtime does. */
@@ -133,8 +143,8 @@ test('D1: the entry activates against a Cordis context (no undeclared service ac
   const descriptor = plugin.default(host.ctx, {})
 
   assert.equal(descriptor.id, 'phocinae')
-  assert.deepEqual(host.injected, [['tools']],
-    'the tool registry must be awaited through ctx.inject, never probed')
+  assert.deepEqual(host.injected, [['tools'], ['skills']],
+    'the tool and skill registries must be awaited through ctx.inject, never probed')
 })
 
 test('D1b: activation does not depend on a legacy ctx.registerTool member', async () => {
@@ -145,6 +155,40 @@ test('D1b: activation does not depend on a legacy ctx.registerTool member', asyn
   // ctx.registerTool would fail this test.
   plugin.default(host.ctx, {})
   assert.equal(host.registered.length, 2)
+})
+
+test('D13: the skill is registered through ctx.skills, not merely shipped', async () => {
+  const plugin = await import(ENTRY)
+  const host = makeHost()
+  const descriptor = plugin.default(host.ctx, {})
+
+  assert.equal(host.skills.length, 1, 'the plugin must register exactly one skill')
+  const skill = host.skills[0]
+  assert.equal(skill.name, 'phocinae')
+  assert.equal(descriptor.skill, 'phocinae')
+  assert.equal(typeof skill.description, 'string')
+  assert.ok(skill.description.length > 40, 'the description is what routes the skill')
+  assert.equal(typeof skill.whenToUse, 'string')
+  assert.equal(typeof skill.content, 'string')
+  assert.ok(skill.content.length > 500, 'the body is the instruction text the model loads')
+  assert.deepEqual(skill.invocation, { modelInvocable: true, userInvocable: true })
+
+  // The registry validates the kebab-case name and a non-empty description, and
+  // rejects an undefined invocation policy object.
+  assert.match(skill.name, /^[a-z0-9]+(-[a-z0-9]+)*$/)
+  assert.notEqual(skill.description.length, 0)
+})
+
+test('D13b: a host without a skill registry still gets the tools and the gate', async () => {
+  const plugin = await import(ENTRY)
+  const host = makeHost({ withSkills: false })
+  const descriptor = plugin.default(host.ctx, {})
+
+  assert.equal(host.skills.length, 0)
+  assert.equal(host.registered.length, 2, 'tools must register regardless')
+  assert.equal(host.listeners.get('tools/pre-execute')?.length, 1,
+    'the gate must arm regardless')
+  assert.equal(descriptor.gateEnabled, true)
 })
 
 test('D2: registered tools are complete ToolDefinitions', async () => {

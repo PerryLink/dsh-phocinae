@@ -24,6 +24,7 @@ Requer Node `^22.19` ou `>=24`, e um serviço de decisão acessível (veja [Exec
 | `phocinae_ask` | `ctx.tools` | Executa um lote de perguntas tipadas contra o modelo local. Toda resposta carrega uma confiança calibrada e um sinalizador `escalate` de caráter consultivo. |
 | `phocinae_gate` | `ctx.tools` | Julga um comando ou uma ação: `allow` / `ask` / `deny`, com confiança. Verifica uma ação sem executá-la. |
 | portão de aprovação | cascata `tools/pre-execute` | Examina toda chamada de ferramenta coberta pelos padrões configurados, antes que ela seja executada. |
+| skill `phocinae` | `ctx.skills` | Ensina ao modelo quando uma decisão local é a ferramenta certa, como formulá-la e como ler o sinalizador `escalate`. |
 
 O modelo não é um modelo de chat. Ele não gera texto, não conhece fatos e não sabe escrever código. Ele toma uma decisão estruturada por forward pass, que é exatamente o que um portão precisa e nada mais.
 

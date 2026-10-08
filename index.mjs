@@ -47,6 +47,7 @@ import {
   validateQuestions,
 } from './lib/protocol.mjs'
 import { createTools } from './tools.mjs'
+import { SKILL_NAME, createSkill } from './lib/skill.mjs'
 
 export const PLUGIN_ID = 'phocinae'
 export const BUNDLE_NAME = 'dsh-phocinae'
@@ -66,6 +67,8 @@ export {
   ERROR_CODES,
   PhocinaeError,
   QUESTION_INSTRUCTIONS,
+  SKILL_NAME,
+  createSkill,
   resolveConfig,
   toolMatches,
   // protocol helpers, exported for embedding and for tests
@@ -109,10 +112,16 @@ export function apply(ctx, rawConfig = {}) {
     ctx.inject(['tools'], (toolCtx) => {
       for (const definition of tools) toolCtx.tools.register(definition)
     })
+    // The skill rides the same waiting pattern: a host without a skill registry
+    // is not an error, the tools and the gate are unaffected.
+    ctx.inject(['skills'], (skillCtx) => {
+      skillCtx.skills.register(createSkill())
+    })
   } else if (ctx?.tools && typeof ctx.tools.register === 'function') {
-    // Already scoped to the tool registry (tests, or a host that hands the
-    // service in directly). No probe of undeclared names, so this cannot throw.
+    // Already scoped to the service registries (tests, or a host that hands them
+    // in directly). No probe of undeclared names, so this cannot throw.
     for (const definition of tools) ctx.tools.register(definition)
+    if (ctx.skills && typeof ctx.skills.register === 'function') ctx.skills.register(createSkill())
   } else if (logger) {
     logger.warn?.(
       'phocinae: no tool registry on this context — the approval gate is active, ' +
@@ -131,6 +140,7 @@ export function apply(ctx, rawConfig = {}) {
     id: PLUGIN_ID,
     bundle: BUNDLE_NAME,
     tools: TOOL_NAMES,
+    skill: SKILL_NAME,
     gateEnabled: config.gate.enabled && config.gate.mode !== 'off',
     config,
   })

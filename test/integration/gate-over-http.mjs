@@ -31,6 +31,7 @@ const step = (message) => process.stdout.write(`  ${message}\n`)
 /** A context that mimics the Cordis proxy: undeclared reads throw. */
 function makeHost() {
   const registered = []
+  const skills = []
   const listeners = new Map()
   const warnings = []
   const base = {
@@ -49,11 +50,18 @@ function makeHost() {
         return () => {}
       },
     },
+    skills: {
+      register(definition) {
+        skills.push(definition)
+        return () => {}
+      },
+    },
     inject(deps, callback) {
-      assert.deepEqual(deps, ['tools'])
+      injected.push([...deps])
       callback(base)
     },
   }
+  const injected = []
   const proxy = new Proxy(base, {
     get(target, property, receiver) {
       if (typeof property === 'string' && !(property in target)
@@ -63,7 +71,7 @@ function makeHost() {
       return Reflect.get(target, property, receiver)
     },
   })
-  return { ctx: proxy, registered, listeners, warnings }
+  return { ctx: proxy, registered, skills, listeners, warnings, injected }
 }
 
 async function driveGate(listeners, exec) {
@@ -124,7 +132,10 @@ try {
   plugin.default(host.ctx, { endpoint: ENDPOINT, timeoutMs: 5000, gate: { tools: ['pwsh'] } })
   assert.deepEqual(host.registered.map((t) => t.name).sort(),
     ['phocinae_ask', 'phocinae_gate'])
-  step('registered phocinae_ask and phocinae_gate (gate.tools = ["pwsh"])')
+  assert.deepEqual(host.skills.map((s) => s.name), ['phocinae'],
+    'the skill must reach the skill registry, not just the tarball')
+  step('registered phocinae_ask and phocinae_gate, plus the phocinae skill ' +
+    '(gate.tools = ["pwsh"])')
 
   const decisions = () => (fs.existsSync(logPath)
     ? fs.readFileSync(logPath, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l))

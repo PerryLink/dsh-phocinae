@@ -24,6 +24,7 @@ Requires Node `^22.19` or `>=24`, and a reachable decision service (see [Running
 | `phocinae_ask` | `ctx.tools` | Runs a batch of typed questions against the local model. Every answer carries a calibrated confidence and an advisory `escalate` flag. |
 | `phocinae_gate` | `ctx.tools` | Judges one command or action: `allow` / `ask` / `deny`, with confidence. Checks an action without running it. |
 | approval gate | `tools/pre-execute` waterfall | Screens every tool call the configured patterns cover, before it executes. |
+| `phocinae` skill | `ctx.skills` | Teaches the model when a local decision is the right tool, how to phrase one, and how to read the `escalate` flag. |
 
 The model is not a chat model. It does not generate text, does not know facts, and cannot write code. It makes one structured decision per forward pass, which is exactly what a gate needs and nothing more.
 

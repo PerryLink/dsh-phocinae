@@ -24,6 +24,7 @@ dsh plugin --profile <name> add dsh-phocinae
 | `phocinae_ask` | `ctx.tools` | 针对本地模型运行一批带类型的问题。每个答案都带有经校准的置信度，以及一个建议性的 `escalate` 标志。 |
 | `phocinae_gate` | `ctx.tools` | 对单条命令或动作做出判定：`allow` / `ask` / `deny`，并附带置信度。只检查动作，不执行它。 |
 | 审批门 | `tools/pre-execute` 瀑布（waterfall） | 在执行之前，审查配置的模式所覆盖的每一次工具调用。 |
+| `phocinae` skill | `ctx.skills` | 教会模型何时该用本地决策、如何提问，以及如何解读 `escalate` 标志。 |
 
 这个模型不是聊天模型。它不生成文本，不具备事实知识，也不能写代码。它每次前向传播只做一个结构化决策，这正是审批门所需要的全部，不多也不少。
 

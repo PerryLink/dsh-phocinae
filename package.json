@@ -4,11 +4,11 @@
   "version": "0.2.1",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PerryLink/dsh-phocinae.git"
+    "url": "git+https://github.com/Phocinae/dsh-phocinae.git"
   },
-  "homepage": "https://github.com/PerryLink/dsh-phocinae#readme",
+  "homepage": "https://github.com/Phocinae/dsh-phocinae#readme",
   "bugs": {
-    "url": "https://github.com/PerryLink/dsh-phocinae/issues"
+    "url": "https://github.com/Phocinae/dsh-phocinae/issues"
   },
   "author": "PerryLink",
   "type": "module",
@@ -29,6 +29,7 @@
     "tools.mjs",
     "types.d.ts",
     "lib",
+    "skills",
     "cordis.patch.yml",
     "README.md",
     "README-zh.md",
