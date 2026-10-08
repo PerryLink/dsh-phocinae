@@ -2,13 +2,15 @@
 
 ## [0.2.1] — 2026-10-08
 
-No code change from 0.2.0.
+No code change from 0.2.0: `lib/guard.mjs` and every other shipped module hash
+identically, and the only difference between the two tarballs is the version
+string.
 
-0.2.0's first publish attempt was interrupted: npm reported success, the registry
-eventually recorded the version, but its tarball was never stored and requests for
-it answer 404. Re-publishing over it is refused (`E409 Cannot publish over
-previously staged version`), so the same tree ships as 0.2.1, and npm carries a
-deprecation notice on 0.2.0. Install 0.2.1 or later.
+0.2.0 was briefly marked deprecated on npm, on the strength of a 404 from the
+registry's CDN for its tarball. That 404 was replication lag, not a broken
+publish — the tarball serves normally now, and its `lib/guard.mjs` is
+byte-identical to this release's — so the notice was withdrawn. 0.2.1 remains
+`latest` only because it is the newer of two identical releases.
 
 ## [0.2.0] — 2026-10-08
 
