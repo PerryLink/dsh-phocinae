@@ -1,16 +1,22 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.2] — 2026-10-08
 
 ### Fixed
 
 - The `phocinae` skill is registered again. 0.1.2 shipped
-  `skills/phocinae/SKILL.md` but nothing registered it, so the file was inert;
+  `skills/phocinae/SKILL.md` with nothing registering it, so the file was inert;
   0.2.0 then dropped it while rewriting the entry point, which was a feature
   regression rather than a cleanup. The body now lives in `lib/skill.mjs` and
   goes through the documented `ctx.skills.register()` surface, awaited through
   `ctx.inject(['skills'], …)` like the tool registry. A host without a skill
   registry is not an error — the tools and the gate are unaffected.
+
+### Changed
+
+- `repository`, `homepage` and `bugs` point at the canonical
+  **Phocinae/dsh-phocinae** rather than a personal mirror, so the npm page sends
+  readers upstream.
 
 ## [0.2.1] — 2026-10-08
 

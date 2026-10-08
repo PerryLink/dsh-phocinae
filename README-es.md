@@ -6,7 +6,7 @@
 
 Herramientas `phocinae_ask` / `phocinae_gate` respaldadas por un servidor [Phocinae-Largha-150M-v1](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) — juicios de sí/no, elecciones de una sola opción y puntuaciones de 2 a 10, una pasada forward cada una, en tu propia máquina — más una puerta de aprobación que falla cerrada y examina las llamadas a herramientas antes de que se ejecuten.
 
-Esta es la **0.2.1**, una versión de reparación. El complemento 0.1.2 no se activaba en absoluto en DSH 0.2.x: el harness registraba un solo aviso y la entrada moría. Todo lo que aparece a continuación de la sección *Corregido en 0.2.1* es lo que cambió y por qué.
+Esta es la **0.2.2**, una versión de reparación. El complemento 0.1.2 no se activaba en absoluto en DSH 0.2.x: el harness registraba un solo aviso y la entrada moría. Todo lo que aparece a continuación de la sección *Corregido en 0.2.2* es lo que cambió y por qué.
 
 ```sh
 npm i dsh-phocinae
@@ -30,7 +30,7 @@ El modelo no es un modelo de chat. No genera texto, no conoce hechos y no sabe e
 
 ---
 
-## Corregido en 0.2.1
+## Corregido en 0.2.2
 
 Cada punto de los siguientes está reproducido por una prueba en `test/regressions.test.mjs`, llamada `D1`…`D12`.
 
@@ -87,7 +87,7 @@ La publicación del modelo documenta una puerta E1: escalar una decisión a un m
 
 ### Cambios incompatibles
 
-| cambio | 0.1.2 | 0.2.1 |
+| cambio | 0.1.2 | 0.2.2 |
 |---|---|---|
 | registro de herramientas | sonda sobre `ctx.registerTool` / `ctx.tools.register` | `ctx.inject(['tools'], …)` |
 | definición de herramienta | `inputSchema` + `handler` | `parameters` + `output` + `execute` |
@@ -136,7 +136,7 @@ La exactitud se reproduce dentro del propio ruido fp16/fp32 que declara la publi
 |---|---|---|
 | `noul` — "¿debería bloquearse esto?" (valor por defecto de 0.1.2) | **0.00** | — |
 | `tri-state` — allow / ask / deny | **0.74** | 1 |
-| **`harm` — harmless / risky / destructive (valor por defecto de 0.2.1)** | **0.97** | **0** |
+| **`harm` — harmless / risky / destructive (valor por defecto de 0.2.2)** | **0.97** | **0** |
 
 La pregunta booleana heredada no es solo débil, está invertida: dejó pasar **los 31 comandos destructivos**, la mayoría con una confianza de entre 0.54 y 0.80. Preguntar "¿esto es seguro?" es aún peor — 27 de 31 pasaron con una confianza de hasta 0.87. La escala de daño es la única formulación medida que atrapó casi todo y que nunca dejó pasar con confianza un comando destructivo.
 
@@ -146,7 +146,7 @@ Su único fallo, `vssadmin delete shadows /all /quiet`, lo atrapa la regla de op
 
 La confianza del modelo no separa los comandos rutinarios de los peligrosos lo bastante bien como para ser un filtro de propósito general. Sus veredictos `harmless` se sitúan en su mayoría en 0.27–0.54, así que una puerta que le preguntara por `git status` mandaría `git status` a una persona.
 
-Por eso la `0.2.1` incluye una **lista de auto-permiso**: los comandos de solo lectura y de compilación/pruebas sin operadores de shell no llegan siquiera al modelo. El trabajo de la puerta es detener cosas, no aprobar lo rutinario:
+Por eso la `0.2.2` incluye una **lista de auto-permiso**: los comandos de solo lectura y de compilación/pruebas sin operadores de shell no llegan siquiera al modelo. El trabajo de la puerta es detener cosas, no aprobar lo rutinario:
 
 - nombres en la lista, sin operador → pasan en local, sin petición, sin latencia
 - cualquier cosa que contenga `;&|><`$(){}\[\]` etc. → se omite la lista y decide el modelo

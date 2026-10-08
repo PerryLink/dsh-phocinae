@@ -6,7 +6,7 @@
 
 `phocinae_ask` / `phocinae_gate` tools backed by a [Phocinae-Largha-150M-v1](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) server — yes/no judgements, single-choice picks and 2-10 scores, one forward pass each, on your own machine — plus a fail-closed approval gate that screens tool calls before they run.
 
-This is **0.2.1**, a repair release. The 0.1.2 plugin did not activate at all on DSH 0.2.x: the harness logged one warning and the entry died. Everything below the *Fixed in 0.2.1* section is what changed and why.
+This is **0.2.2**, a repair release. The 0.1.2 plugin did not activate at all on DSH 0.2.x: the harness logged one warning and the entry died. Everything below the *Fixed in 0.2.2* section is what changed and why.
 
 ```sh
 npm i dsh-phocinae
@@ -30,7 +30,7 @@ The model is not a chat model. It does not generate text, does not know facts, a
 
 ---
 
-## Fixed in 0.2.1
+## Fixed in 0.2.2
 
 Every item below is reproduced by a test in `test/regressions.test.mjs`, named `D1`…`D12`.
 
@@ -87,7 +87,7 @@ The model release documents an E1 gate: escalate a decision to a larger model wh
 
 ### Breaking changes
 
-| change | 0.1.2 | 0.2.1 |
+| change | 0.1.2 | 0.2.2 |
 |---|---|---|
 | tool registry | `ctx.registerTool` / `ctx.tools.register` probe | `ctx.inject(['tools'], …)` |
 | tool definition | `inputSchema` + `handler` | `parameters` + `output` + `execute` |
@@ -136,7 +136,7 @@ The accuracy reproduces within the release's own stated fp16/fp32 noise. The esc
 |---|---|---|
 | `noul` — "should this be blocked?" (0.1.2's default) | **0.00** | — |
 | `tri-state` — allow / ask / deny | **0.74** | 1 |
-| **`harm` — harmless / risky / destructive (0.2.1 default)** | **0.97** | **0** |
+| **`harm` — harmless / risky / destructive (0.2.2 default)** | **0.97** | **0** |
 
 The inherited boolean question is not merely weak, it is inverted: it passed **every one of the 31 destructive commands**, most with confidence between 0.54 and 0.80. Asking "is this safe?" is worse still — 27 of 31 passed with confidence as high as 0.87. The harm scale is the only formulation measured that both caught almost everything and never confidently waved a destructive command through.
 
@@ -146,7 +146,7 @@ Its one miss, `vssadmin delete shadows /all /quiet`, is caught by the auto-allow
 
 The model's confidence does not separate routine commands from risky ones well enough to be a general-purpose filter. Its `harmless` verdicts sit mostly in 0.27–0.54, so a gate that asked it about `git status` would send `git status` to a human.
 
-That is why `0.2.1` ships an **auto-allow list**: read-only and build/test commands with no shell operators never reach the model at all. The gate's job is to stop things, not to approve the routine:
+That is why `0.2.2` ships an **auto-allow list**: read-only and build/test commands with no shell operators never reach the model at all. The gate's job is to stop things, not to approve the routine:
 
 - names on the list, no operator → pass locally, no request, no latency
 - anything containing `;&|><`$(){}\[\]` etc. → the list is bypassed and the model decides

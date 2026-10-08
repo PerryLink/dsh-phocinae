@@ -6,7 +6,7 @@
 
 Ferramentas `phocinae_ask` / `phocinae_gate` apoiadas em um servidor [Phocinae-Largha-150M-v1](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) — julgamentos sim/não, escolhas de alternativa única e pontuações 2-10, um forward pass para cada, na sua própria máquina — além de um portão de aprovação que falha fechado e examina chamadas de ferramenta antes que elas sejam executadas.
 
-Esta é a **0.2.1**, uma versão de correção. O complemento 0.1.2 não ativava de forma alguma no DSH 0.2.x: o harness registrava um aviso e a entrada morria. Tudo o que vem abaixo da seção *Corrigido na 0.2.1* é o que mudou e por quê.
+Esta é a **0.2.2**, uma versão de correção. O complemento 0.1.2 não ativava de forma alguma no DSH 0.2.x: o harness registrava um aviso e a entrada morria. Tudo o que vem abaixo da seção *Corrigido na 0.2.2* é o que mudou e por quê.
 
 ```sh
 npm i dsh-phocinae
@@ -30,7 +30,7 @@ O modelo não é um modelo de chat. Ele não gera texto, não conhece fatos e n�
 
 ---
 
-## Corrigido na 0.2.1
+## Corrigido na 0.2.2
 
 Cada item abaixo é reproduzido por um teste em `test/regressions.test.mjs`, chamado `D1`…`D12`.
 
@@ -87,7 +87,7 @@ A versão do modelo documenta um portão E1: escalonar uma decisão para um mode
 
 ### Mudanças que quebram compatibilidade
 
-| mudança | 0.1.2 | 0.2.1 |
+| mudança | 0.1.2 | 0.2.2 |
 |---|---|---|
 | registro de ferramentas | sondagem `ctx.registerTool` / `ctx.tools.register` | `ctx.inject(['tools'], …)` |
 | definição da ferramenta | `inputSchema` + `handler` | `parameters` + `output` + `execute` |
@@ -136,7 +136,7 @@ A acurácia se reproduz dentro do próprio ruído fp16/fp32 declarado pela vers�
 |---|---|---|
 | `noul` — "isto deveria ser bloqueado?" (padrão da 0.1.2) | **0.00** | — |
 | `tri-state` — allow / ask / deny | **0.74** | 1 |
-| **`harm` — harmless / risky / destructive (padrão da 0.2.1)** | **0.97** | **0** |
+| **`harm` — harmless / risky / destructive (padrão da 0.2.2)** | **0.97** | **0** |
 
 A pergunta booleana herdada não é apenas fraca, é invertida: ela liberou **todos os 31 comandos destrutivos**, a maioria com confiança entre 0.54 e 0.80. Perguntar "isto é seguro?" é ainda pior — 27 de 31 passaram com confiança de até 0.87. A escala de dano é a única formulação medida que ao mesmo tempo pegou quase tudo e nunca deixou passar com confiança um comando destrutivo.
 
@@ -146,7 +146,7 @@ Seu único erro, `vssadmin delete shadows /all /quiet`, é barrado pela regra de
 
 A confiança do modelo não separa comandos rotineiros de comandos arriscados o suficiente para ser um filtro de uso geral. Seus vereditos `harmless` ficam em sua maioria na faixa 0.27–0.54, então um portão que perguntasse a ele sobre `git status` mandaria `git status` para um humano.
 
-É por isso que a `0.2.1` traz uma **lista de permissão automática**: comandos somente leitura e de build/teste sem operadores de shell nunca chegam ao modelo. O trabalho do portão é barrar coisas, não aprovar o rotineiro:
+É por isso que a `0.2.2` traz uma **lista de permissão automática**: comandos somente leitura e de build/teste sem operadores de shell nunca chegam ao modelo. O trabalho do portão é barrar coisas, não aprovar o rotineiro:
 
 - nomes na lista, sem operador → passa localmente, sem requisição, sem latência
 - qualquer coisa contendo `;&|><`$(){}\[\]` etc. → a lista é ignorada e o modelo decide
