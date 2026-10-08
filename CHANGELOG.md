@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1] — 2026-10-08
+
+No code change from 0.2.0. That version was staged on the registry by a publish
+attempt that the registry never completed, and npm refuses to publish over a
+staged version (`E409 Cannot publish over previously staged version`), so the
+same tree ships as 0.2.1.
+
 ## [0.2.0] — 2026-10-08
 
 A repair release. `0.1.2` did not activate on DSH 0.2.x, and if it had, its approval
@@ -85,4 +92,5 @@ so a regression is a failing test rather than a silent behaviour change.
 - First release: `phocinae_ask`, an approval gate on `tools/pre-execute`, and a
   `phocinae` skill.
 
+[0.2.1]: https://github.com/PerryLink/dsh-phocinae/releases/tag/v0.2.1
 [0.2.0]: https://github.com/PerryLink/dsh-phocinae/releases/tag/v0.2.0

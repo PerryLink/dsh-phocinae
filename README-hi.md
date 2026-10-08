@@ -6,7 +6,7 @@
 
 `phocinae_ask` / `phocinae_gate` tools, जो एक [Phocinae-Largha-150M-v1](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) server पर टिके हैं — हाँ/ना के निर्णय, single-choice चुनाव और 2-10 तक के scores, हर एक के लिए एक forward pass, और वह भी आपकी ही मशीन पर — साथ में एक fail-closed approval gate जो tool calls को चलने से पहले छान लेता है।
 
-यह **0.2.0** है, एक repair release। 0.1.2 plugin DSH 0.2.x पर बिल्कुल activate ही नहीं हुआ: harness ने एक warning log की और entry दम तोड़ गई। *0.2.0 में क्या ठीक हुआ* section से नीचे का हर हिस्सा बताता है कि क्या बदला और क्यों।
+यह **0.2.1** है, एक repair release। 0.1.2 plugin DSH 0.2.x पर बिल्कुल activate ही नहीं हुआ: harness ने एक warning log की और entry दम तोड़ गई। *0.2.1 में क्या ठीक हुआ* section से नीचे का हर हिस्सा बताता है कि क्या बदला और क्यों।
 
 ```sh
 npm i dsh-phocinae
@@ -29,7 +29,7 @@ Node `^22.19` या `>=24` चाहिए, और एक पहुँच म�
 
 ---
 
-## 0.2.0 में क्या ठीक हुआ
+## 0.2.1 में क्या ठीक हुआ
 
 नीचे की हर बात `test/regressions.test.mjs` में एक test से reproduce होती है, जिनके नाम `D1`…`D12` हैं।
 
@@ -86,7 +86,7 @@ Model release में एक E1 gate का ज़िक्र है: जब 
 
 ### ब्रेकिंग बदलाव
 
-| बदलाव | 0.1.2 | 0.2.0 |
+| बदलाव | 0.1.2 | 0.2.1 |
 |---|---|---|
 | tool registry | `ctx.registerTool` / `ctx.tools.register` probe | `ctx.inject(['tools'], …)` |
 | tool definition | `inputSchema` + `handler` | `parameters` + `output` + `execute` |
@@ -135,7 +135,7 @@ Accuracy तो release के खुद बताए fp16/fp32 noise के अ
 |---|---|---|
 | `noul` — "should this be blocked?" (0.1.2 का default) | **0.00** | — |
 | `tri-state` — allow / ask / deny | **0.74** | 1 |
-| **`harm` — harmless / risky / destructive (0.2.0 default)** | **0.97** | **0** |
+| **`harm` — harmless / risky / destructive (0.2.1 default)** | **0.97** | **0** |
 
 विरासत में मिला यह boolean सवाल सिर्फ़ कमज़ोर नहीं है, उल्टा है: इसने **31 में से हर एक destructive command** pass कर दिया, ज़्यादातर 0.54 से 0.80 के बीच confidence के साथ। "is this safe?" पूछना तो और भी बुरा है — 31 में से 27 pass हो गए, confidence 0.87 तक पहुँच गया। मापी गई formulations में harm scale अकेली ऐसी है जिसने लगभग सब कुछ पकड़ा और किसी destructive command को भरोसे के साथ कभी पार नहीं जाने दिया।
 
@@ -145,7 +145,7 @@ Accuracy तो release के खुद बताए fp16/fp32 noise के अ
 
 Model की confidence routine commands को risky commands से इतना अलग नहीं कर पाती कि वह general-purpose filter बन सके। इसके `harmless` verdict ज़्यादातर 0.27–0.54 में बैठते हैं, इसलिए जो gate `git status` के बारे में इसे पूछता, वह `git status` को किसी इंसान के पास भेज देता।
 
-इसीलिए `0.2.0` एक **auto-allow list** के साथ आता है: बिना shell operator वाले read-only और build/test commands model तक पहुँचते ही नहीं। Gate का काम चीज़ों को रोकना है, नियमित कामों को approve करना नहीं:
+इसीलिए `0.2.1` एक **auto-allow list** के साथ आता है: बिना shell operator वाले read-only और build/test commands model तक पहुँचते ही नहीं। Gate का काम चीज़ों को रोकना है, नियमित कामों को approve करना नहीं:
 
 - list में नाम है, कोई operator नहीं → local पर ही pass, न request, न latency
 - ऐसा कुछ भी जिसमें `;&|><`$(){}\[\]` आदि हों → list bypass हो जाती है और फैसला model करता है
