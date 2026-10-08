@@ -1,0 +1,58 @@
+{
+ "tokensPerRequest": {
+  "askToolDefinition": 473,
+  "gateToolDefinition": 212,
+  "bothToolDefinitions": 685,
+  "oneCallArguments": 99,
+  "oneCallResult": 135,
+  "oneLocalDecisionTotal": 919
+ },
+ "localDecision": {
+  "roundTripMs": 42.6,
+  "answer": {
+   "risk": false,
+   "action": 2,
+   "severity": 3
+  },
+  "confidence": {
+   "risk": 0.7541,
+   "action": 0.4509,
+   "severity": 0.1904
+  },
+  "escalate": true
+ },
+ "gate": {
+  "screenedMeanMs": 21,
+  "screenedSamples": [
+   {
+    "command": "Remove-Item -Recurse -Force C:\\Windows\\System32",
+    "decision": "deny",
+    "ms": 24.1
+   },
+   {
+    "command": "git push --force origin main",
+    "decision": "deny",
+    "ms": 23
+   },
+   {
+    "command": "npm publish --tag next",
+    "decision": "deny",
+    "ms": 19.3
+   },
+   {
+    "command": "vssadmin delete shadows /all /quiet",
+    "decision": "ask",
+    "ms": 19.2
+   },
+   {
+    "command": "Set-ExecutionPolicy Bypass -Scope LocalMachine -Force",
+    "decision": "deny",
+    "ms": 19.4
+   }
+  ],
+  "autoAllowedMs": 0.02,
+  "autoAllowedDecision": "allow",
+  "autoAllowedReason": "command-on-auto-allow-list",
+  "contextTokens": 0
+ }
+}

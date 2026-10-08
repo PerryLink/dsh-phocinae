@@ -1,0 +1,32 @@
+[
+ {
+  "label": "default-threads",
+  "device": "cpu",
+  "cases": 30,
+  "decisions": 150,
+  "perCaseMs": {
+   "mean": 96,
+   "p50": 93.9,
+   "p90": 108.7,
+   "min": 78,
+   "max": 151.5
+  },
+  "perDecisionMs": 19.2,
+  "casesPerSecond": 10.41
+ },
+ {
+  "label": "single-thread",
+  "device": "cpu",
+  "cases": 20,
+  "decisions": 100,
+  "perCaseMs": {
+   "mean": 921.7,
+   "p50": 923.6,
+   "p90": 1062.5,
+   "min": 797,
+   "max": 1065.1
+  },
+  "perDecisionMs": 184.3,
+  "casesPerSecond": 1.08
+ }
+]

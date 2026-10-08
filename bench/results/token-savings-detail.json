@@ -1,0 +1,36 @@
+{
+ "byType": {
+  "choice": {
+   "n": 1400,
+   "local": 1054,
+   "llm": 951,
+   "missingLocal": 0,
+   "missingLlm": 0,
+   "localAccuracy": 0.7528571428571429,
+   "llmAccuracy": 0.6792857142857143
+  },
+  "noul": {
+   "n": 600,
+   "local": 410,
+   "llm": 466,
+   "missingLocal": 0,
+   "missingLlm": 23,
+   "localAccuracy": 0.6833333333333333,
+   "llmAccuracy": 0.7766666666666666
+  }
+ },
+ "confidence": {
+  "n": 2000,
+  "min": 0.2719,
+  "p25": 0.5333,
+  "median": 0.6294,
+  "p75": 0.7602,
+  "p90": 0.8832,
+  "max": 0.9687
+ },
+ "prices": {
+  "deepseek_flash_in": 0.28,
+  "deepseek_flash_out": 1.1
+ },
+ "fullCostUsd": 1.1061351799999999
+}

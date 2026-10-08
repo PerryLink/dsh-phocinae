@@ -1,0 +1,488 @@
+{
+ "model": "deepseek-flash",
+ "rows": 8,
+ "decisions": 40,
+ "llmTokens": {
+  "prompt": 5775,
+  "completion": 15783,
+  "total": 21558
+ },
+ "perCaseTokens": 2694.75,
+ "localAccuracy": 0.8,
+ "llmAccuracy": 0.75,
+ "agreement": 0.725,
+ "strategies": {
+  "llm-only": {
+   "llmCalls": 8,
+   "tokens": 21558,
+   "savings": 0,
+   "accuracy": 0.75,
+   "escalationRate": 1
+  },
+  "local-only": {
+   "llmCalls": 0,
+   "tokens": 0,
+   "savings": 1,
+   "accuracy": 0.8,
+   "escalationRate": 0
+  },
+  "hybrid-tau-0.3": {
+   "llmCalls": 0,
+   "tokens": 0,
+   "savings": 1,
+   "accuracy": 0.8,
+   "escalationRate": 0,
+   "escalatedDecisions": 0
+  },
+  "hybrid-tau-0.4": {
+   "llmCalls": 1,
+   "tokens": 2695,
+   "savings": 0.875,
+   "accuracy": 0.8,
+   "escalationRate": 0.125,
+   "escalatedDecisions": 1
+  },
+  "hybrid-tau-0.5": {
+   "llmCalls": 4,
+   "tokens": 10779,
+   "savings": 0.5,
+   "accuracy": 0.775,
+   "escalationRate": 0.5,
+   "escalatedDecisions": 6
+  },
+  "hybrid-tau-0.6": {
+   "llmCalls": 7,
+   "tokens": 18863,
+   "savings": 0.125,
+   "accuracy": 0.75,
+   "escalationRate": 0.875,
+   "escalatedDecisions": 14
+  },
+  "hybrid-tau-0.7": {
+   "llmCalls": 8,
+   "tokens": 21558,
+   "savings": 0,
+   "accuracy": 0.75,
+   "escalationRate": 1,
+   "escalatedDecisions": 23
+  },
+  "hybrid-tau-0.8": {
+   "llmCalls": 8,
+   "tokens": 21558,
+   "savings": 0,
+   "accuracy": 0.75,
+   "escalationRate": 1,
+   "escalatedDecisions": 30
+  },
+  "hybrid-tau-0.9": {
+   "llmCalls": 8,
+   "tokens": 21558,
+   "savings": 0,
+   "accuracy": 0.75,
+   "escalationRate": 1,
+   "escalatedDecisions": 34
+  }
+ },
+ "perDecision": [
+  {
+   "id": "agent_trace_observability_000000:action",
+   "type": "choice",
+   "gold": "continue",
+   "localAnswer": "continue",
+   "llmAnswer": "continue",
+   "confidence": 0.6598,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "agent_trace_observability_000000:needs_review",
+   "type": "noul",
+   "gold": "false",
+   "localAnswer": "false",
+   "llmAnswer": "false",
+   "confidence": 0.8954,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "agent_trace_observability_000000:outcome",
+   "type": "choice",
+   "gold": "success",
+   "localAnswer": "success",
+   "llmAnswer": "success",
+   "confidence": 0.8566,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "agent_trace_observability_000000:risk",
+   "type": "choice",
+   "gold": "1",
+   "localAnswer": "1",
+   "llmAnswer": "1",
+   "confidence": 0.6069,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "agent_trace_observability_000000:urgency",
+   "type": "choice",
+   "gold": "0",
+   "localAnswer": "0",
+   "llmAnswer": "0",
+   "confidence": 0.7799,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "agent_trace_observability_000001:action",
+   "type": "choice",
+   "gold": "observe",
+   "localAnswer": "observe",
+   "llmAnswer": "human_review",
+   "confidence": 0.4744,
+   "localOk": true,
+   "llmOk": false
+  },
+  {
+   "id": "agent_trace_observability_000001:needs_review",
+   "type": "noul",
+   "gold": "false",
+   "localAnswer": "false",
+   "llmAnswer": "true",
+   "confidence": 0.7038,
+   "localOk": true,
+   "llmOk": false
+  },
+  {
+   "id": "agent_trace_observability_000001:outcome",
+   "type": "choice",
+   "gold": "success",
+   "localAnswer": "partial",
+   "llmAnswer": "partial",
+   "confidence": 0.4806,
+   "localOk": false,
+   "llmOk": false
+  },
+  {
+   "id": "agent_trace_observability_000001:risk",
+   "type": "choice",
+   "gold": "0",
+   "localAnswer": "0",
+   "llmAnswer": "1",
+   "confidence": 0.6671,
+   "localOk": true,
+   "llmOk": false
+  },
+  {
+   "id": "agent_trace_observability_000001:urgency",
+   "type": "choice",
+   "gold": "1",
+   "localAnswer": "0",
+   "llmAnswer": "1",
+   "confidence": 0.6026,
+   "localOk": false,
+   "llmOk": true
+  },
+  {
+   "id": "customer_service_000000:action",
+   "type": "choice",
+   "gold": "answer_directly",
+   "localAnswer": "answer_directly",
+   "llmAnswer": "answer_directly",
+   "confidence": 0.5848,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "customer_service_000000:category",
+   "type": "choice",
+   "gold": "delivery",
+   "localAnswer": "delivery",
+   "llmAnswer": "delivery",
+   "confidence": 0.9474,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "customer_service_000000:churn_risk",
+   "type": "choice",
+   "gold": "1",
+   "localAnswer": "1",
+   "llmAnswer": "0",
+   "confidence": 0.6396,
+   "localOk": true,
+   "llmOk": false
+  },
+  {
+   "id": "customer_service_000000:needs_human",
+   "type": "noul",
+   "gold": "false",
+   "localAnswer": "false",
+   "llmAnswer": "false",
+   "confidence": 0.8834,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "customer_service_000000:urgency",
+   "type": "choice",
+   "gold": "1",
+   "localAnswer": "1",
+   "llmAnswer": "1",
+   "confidence": 0.7861,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "customer_service_000001:action",
+   "type": "choice",
+   "gold": "execute_refund",
+   "localAnswer": "escalate_to_human",
+   "llmAnswer": "escalate_to_human",
+   "confidence": 0.3616,
+   "localOk": false,
+   "llmOk": false
+  },
+  {
+   "id": "customer_service_000001:category",
+   "type": "choice",
+   "gold": "billing",
+   "localAnswer": "billing",
+   "llmAnswer": "billing",
+   "confidence": 0.9395,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "customer_service_000001:churn_risk",
+   "type": "choice",
+   "gold": "1",
+   "localAnswer": "2",
+   "llmAnswer": "0",
+   "confidence": 0.4914,
+   "localOk": false,
+   "llmOk": false
+  },
+  {
+   "id": "customer_service_000001:needs_human",
+   "type": "noul",
+   "gold": "true",
+   "localAnswer": "false",
+   "llmAnswer": "true",
+   "confidence": 0.7825,
+   "localOk": false,
+   "llmOk": true
+  },
+  {
+   "id": "customer_service_000001:urgency",
+   "type": "choice",
+   "gold": "2",
+   "localAnswer": "2",
+   "llmAnswer": "1",
+   "confidence": 0.5091,
+   "localOk": true,
+   "llmOk": false
+  },
+  {
+   "id": "invoice_processing_000000:discrepancy_severity",
+   "type": "choice",
+   "gold": "2",
+   "localAnswer": "0",
+   "llmAnswer": "0",
+   "confidence": 0.8562,
+   "localOk": false,
+   "llmOk": false
+  },
+  {
+   "id": "invoice_processing_000000:disposition",
+   "type": "choice",
+   "gold": "approve",
+   "localAnswer": "approve",
+   "llmAnswer": "approve",
+   "confidence": 0.7816,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "invoice_processing_000000:duplicate",
+   "type": "noul",
+   "gold": "false",
+   "localAnswer": "false",
+   "llmAnswer": "false",
+   "confidence": 0.9495,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "invoice_processing_000000:matches_order",
+   "type": "noul",
+   "gold": "false",
+   "localAnswer": "false",
+   "llmAnswer": "true",
+   "confidence": 0.9495,
+   "localOk": true,
+   "llmOk": false
+  },
+  {
+   "id": "invoice_processing_000000:urgency",
+   "type": "choice",
+   "gold": "2",
+   "localAnswer": "2",
+   "llmAnswer": "2",
+   "confidence": 0.5155,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "invoice_processing_000001:discrepancy_severity",
+   "type": "choice",
+   "gold": "3",
+   "localAnswer": "3",
+   "llmAnswer": "3",
+   "confidence": 0.5265,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "invoice_processing_000001:disposition",
+   "type": "choice",
+   "gold": "manual_review",
+   "localAnswer": "manual_review",
+   "llmAnswer": "manual_review",
+   "confidence": 0.5856,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "invoice_processing_000001:duplicate",
+   "type": "noul",
+   "gold": "false",
+   "localAnswer": "false",
+   "llmAnswer": "false",
+   "confidence": 0.9386,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "invoice_processing_000001:matches_order",
+   "type": "noul",
+   "gold": "false",
+   "localAnswer": "false",
+   "llmAnswer": "false",
+   "confidence": 0.9386,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "invoice_processing_000001:urgency",
+   "type": "choice",
+   "gold": "2",
+   "localAnswer": "1",
+   "llmAnswer": "2",
+   "confidence": 0.7264,
+   "localOk": false,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000000:credential_compromise",
+   "type": "noul",
+   "gold": "true",
+   "localAnswer": "true",
+   "llmAnswer": "true",
+   "confidence": 0.6423,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000000:disposition",
+   "type": "choice",
+   "gold": "contain",
+   "localAnswer": "contain",
+   "llmAnswer": "contain",
+   "confidence": 0.4771,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000000:severity",
+   "type": "choice",
+   "gold": "3",
+   "localAnswer": "3",
+   "llmAnswer": "3",
+   "confidence": 0.5872,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000000:true_positive",
+   "type": "noul",
+   "gold": "true",
+   "localAnswer": "true",
+   "llmAnswer": "true",
+   "confidence": 0.6423,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000000:urgency",
+   "type": "choice",
+   "gold": "3",
+   "localAnswer": "3",
+   "llmAnswer": "3",
+   "confidence": 0.7937,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000001:credential_compromise",
+   "type": "noul",
+   "gold": "true",
+   "localAnswer": "true",
+   "llmAnswer": "true",
+   "confidence": 0.6743,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000001:disposition",
+   "type": "choice",
+   "gold": "contain",
+   "localAnswer": "investigate",
+   "llmAnswer": "contain",
+   "confidence": 0.541,
+   "localOk": false,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000001:severity",
+   "type": "choice",
+   "gold": "3",
+   "localAnswer": "3",
+   "llmAnswer": "3",
+   "confidence": 0.4123,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000001:true_positive",
+   "type": "noul",
+   "gold": "true",
+   "localAnswer": "true",
+   "llmAnswer": "true",
+   "confidence": 0.6743,
+   "localOk": true,
+   "llmOk": true
+  },
+  {
+   "id": "security_incidents_000001:urgency",
+   "type": "choice",
+   "gold": "3",
+   "localAnswer": "3",
+   "llmAnswer": "3",
+   "confidence": 0.5858,
+   "localOk": true,
+   "llmOk": true
+  }
+ ]
+}

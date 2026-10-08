@@ -1,0 +1,222 @@
+{
+ "inputs": {
+  "perCaseLlm": 3055.5275,
+  "fixed": 685,
+  "perCall": 234,
+  "rows": 400,
+  "decisions": 2000
+ },
+ "accuracy": {
+  "local": 0.732,
+  "largeModel": 0.7085,
+  "agreement": 0.646
+ },
+ "latencyMs": {
+  "localDecision": 42.6,
+  "gateScreened": 21,
+  "gateAllowListed": 0.02
+ },
+ "amortisation": [
+  {
+   "decisions": 1,
+   "local": 919,
+   "largeModel": 3056,
+   "localShare": 0.3007663979460175,
+   "tokenSaving": 0.6992336020539824
+  },
+  {
+   "decisions": 5,
+   "local": 1855,
+   "largeModel": 15278,
+   "localShare": 0.12141929666808758,
+   "tokenSaving": 0.8785807033319124
+  },
+  {
+   "decisions": 10,
+   "local": 3025,
+   "largeModel": 30555,
+   "localShare": 0.09900090900834635,
+   "tokenSaving": 0.9009990909916537
+  },
+  {
+   "decisions": 25,
+   "local": 6535,
+   "largeModel": 76388,
+   "localShare": 0.0855498764125016,
+   "tokenSaving": 0.9144501235874984
+  },
+  {
+   "decisions": 50,
+   "local": 12385,
+   "largeModel": 152776,
+   "localShare": 0.08106619888055336,
+   "tokenSaving": 0.9189338011194467
+  },
+  {
+   "decisions": 100,
+   "local": 24085,
+   "largeModel": 305553,
+   "localShare": 0.07882436011457923,
+   "tokenSaving": 0.9211756398854207
+  },
+  {
+   "decisions": 1000,
+   "local": 234685,
+   "largeModel": 3055528,
+   "localShare": 0.07680670522520253,
+   "tokenSaving": 0.9231932947747975
+  }
+ ],
+ "breakEvenDecisions": 1,
+ "hybrid": {
+  "hybrid-tau-0.3": {
+   "llmCalls": 1,
+   "tokens": 3056,
+   "savings": 0.9975,
+   "accuracy": 0.7315,
+   "escalationRate": 0.0025,
+   "escalatedDecisions": 1,
+   "pluginOverheadTokens": 94051,
+   "totalTokensWithOverhead": 97107,
+   "savingWithOverhead": 0.9205484752632729
+  },
+  "hybrid-tau-0.4": {
+   "llmCalls": 27,
+   "tokens": 82499,
+   "savings": 0.9325,
+   "accuracy": 0.7305,
+   "escalationRate": 0.0675,
+   "escalatedDecisions": 29,
+   "pluginOverheadTokens": 87967,
+   "totalTokensWithOverhead": 170466,
+   "savingWithOverhead": 0.8605263391509322
+  },
+  "hybrid-tau-0.5": {
+   "llmCalls": 228,
+   "tokens": 696660,
+   "savings": 0.42999999999999994,
+   "accuracy": 0.7065,
+   "escalationRate": 0.57,
+   "escalatedDecisions": 320,
+   "pluginOverheadTokens": 40933,
+   "totalTokensWithOverhead": 737593,
+   "savingWithOverhead": 0.3965090561286062
+  },
+  "hybrid-tau-0.6": {
+   "llmCalls": 363,
+   "tokens": 1109156,
+   "savings": 0.09249999999999992,
+   "accuracy": 0.7115,
+   "escalationRate": 0.9075,
+   "escalatedDecisions": 851,
+   "pluginOverheadTokens": 9343,
+   "totalTokensWithOverhead": 1118499,
+   "savingWithOverhead": 0.08485565708376042
+  },
+  "hybrid-tau-0.7": {
+   "llmCalls": 397,
+   "tokens": 1213044,
+   "savings": 0.007500000000000062,
+   "accuracy": 0.7085,
+   "escalationRate": 0.9925,
+   "escalatedDecisions": 1303,
+   "pluginOverheadTokens": 1387,
+   "totalTokensWithOverhead": 1214431,
+   "savingWithOverhead": 0.006365171398391989
+  },
+  "hybrid-tau-0.8": {
+   "llmCalls": 399,
+   "tokens": 1219155,
+   "savings": 0.0024999999999998357,
+   "accuracy": 0.709,
+   "escalationRate": 0.9975,
+   "escalatedDecisions": 1611,
+   "pluginOverheadTokens": 919,
+   "totalTokensWithOverhead": 1220074,
+   "savingWithOverhead": 0.00174808400513482
+  },
+  "hybrid-tau-0.9": {
+   "llmCalls": 400,
+   "tokens": 1222211,
+   "savings": 0,
+   "accuracy": 0.7085,
+   "escalationRate": 1,
+   "escalatedDecisions": 1834,
+   "pluginOverheadTokens": 685,
+   "totalTokensWithOverhead": 1222896,
+   "savingWithOverhead": -0.0005604596914934312
+  }
+ },
+ "strategies": {
+  "llm-only": {
+   "llmCalls": 400,
+   "tokens": 1222211,
+   "savings": 0,
+   "accuracy": 0.7085,
+   "escalationRate": 1
+  },
+  "local-only": {
+   "llmCalls": 0,
+   "tokens": 0,
+   "savings": 1,
+   "accuracy": 0.732,
+   "escalationRate": 0
+  },
+  "hybrid-tau-0.3": {
+   "llmCalls": 1,
+   "tokens": 3056,
+   "savings": 0.9975,
+   "accuracy": 0.7315,
+   "escalationRate": 0.0025,
+   "escalatedDecisions": 1
+  },
+  "hybrid-tau-0.4": {
+   "llmCalls": 27,
+   "tokens": 82499,
+   "savings": 0.9325,
+   "accuracy": 0.7305,
+   "escalationRate": 0.0675,
+   "escalatedDecisions": 29
+  },
+  "hybrid-tau-0.5": {
+   "llmCalls": 228,
+   "tokens": 696660,
+   "savings": 0.42999999999999994,
+   "accuracy": 0.7065,
+   "escalationRate": 0.57,
+   "escalatedDecisions": 320
+  },
+  "hybrid-tau-0.6": {
+   "llmCalls": 363,
+   "tokens": 1109156,
+   "savings": 0.09249999999999992,
+   "accuracy": 0.7115,
+   "escalationRate": 0.9075,
+   "escalatedDecisions": 851
+  },
+  "hybrid-tau-0.7": {
+   "llmCalls": 397,
+   "tokens": 1213044,
+   "savings": 0.007500000000000062,
+   "accuracy": 0.7085,
+   "escalationRate": 0.9925,
+   "escalatedDecisions": 1303
+  },
+  "hybrid-tau-0.8": {
+   "llmCalls": 399,
+   "tokens": 1219155,
+   "savings": 0.0024999999999998357,
+   "accuracy": 0.709,
+   "escalationRate": 0.9975,
+   "escalatedDecisions": 1611
+  },
+  "hybrid-tau-0.9": {
+   "llmCalls": 400,
+   "tokens": 1222211,
+   "savings": 0,
+   "accuracy": 0.7085,
+   "escalationRate": 1,
+   "escalatedDecisions": 1834
+  }
+ }
+}

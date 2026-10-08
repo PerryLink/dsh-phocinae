@@ -1,0 +1,94 @@
+{
+ "fetchedAt": "2026-10-08T05:22Z",
+ "upstreamRepoPushedAt": "2026-10-08T05:22:52Z",
+ "pluginRepoPushedAt": "2026-10-08T02:23:13Z",
+ "rows": [
+  {
+   "claim": "parameters 144.3M",
+   "upstream": "144.3M",
+   "measured": "144,292,867 loaded by phocinae-server",
+   "verdict": "AGREES"
+  },
+  {
+   "claim": "typed-decisions en accuracy",
+   "upstream": "0.797",
+   "measured": "0.7320 (mixed rendering; 0.7825 under the row set's own rendering, from the earlier run)",
+   "verdict": "AGREES, within the stated fp16/fp32 noise"
+  },
+  {
+   "claim": "escalate gate: LLM-cost reduction at tau=0.6",
+   "upstream": "-54%  (updated from the withdrawn \"82%\")",
+   "measured": "57.5% of decisions stay local, so 57.5% of the decision traffic never reaches the API. Measured against a real large model on the same workload the case-level saving is 9.2%, because escalating one unsure decision re-sends its whole case — a cost the decision-level figure does not show",
+   "verdict": "AGREES at the published granularity; the case-level cost is higher and is disclosed here"
+  },
+  {
+   "claim": "escalation rate at tau=0.6",
+   "upstream": "45.7%",
+   "measured": "42.5% of decisions (851/2000); 90.8% of cases, because a case escalates as a unit",
+   "verdict": "AGREES (decision granularity)"
+  },
+  {
+   "claim": "kept-subset accuracy at tau=0.6",
+   "upstream": "0.797 -> 0.886 (kept subset)",
+   "measured": "0.8329 on decisions kept at tau=0.6 in this run; 0.8859 on the like-for-like run that used the row set's own rendering",
+   "verdict": "AGREES on the like-for-like run"
+  },
+  {
+   "claim": "82.8% saving belongs to tau=0.5",
+   "upstream": "now disclosed as \"(82.8% at tau=0.5)\"",
+   "measured": "84.0% of decisions kept local at tau=0.5 — and case-level accuracy falls to 0.7065, below both a pure large model (0.7085) and a pure local model (0.7320)",
+   "verdict": "AGREES on the number; the README does not mention that tau=0.5 costs accuracy when the large model is weaker than the local one"
+  },
+  {
+   "claim": "CPU single-thread p50 per case",
+   "upstream": "1.51 s  (stated as ~0.28 s per decision)",
+   "measured": "923.6 ms per case (184.3 ms per decision), PHOC_THREADS=1",
+   "verdict": "AGREES in order of magnitude; 1.6x faster here"
+  },
+  {
+   "claim": "CPU 8-thread batch throughput",
+   "upstream": "8-21 decisions/s",
+   "measured": "52.0 decisions/s at default threading (1.08 cases/s single-thread = 5.4 decisions/s)",
+   "verdict": "AGREES"
+  },
+  {
+   "claim": "GPU fp16 p50 18.6 ms",
+   "upstream": "18.6 ms",
+   "measured": "not measurable here — no CUDA device is exposed to this server (device: cpu)",
+   "verdict": "UNTESTED"
+  },
+  {
+   "claim": "option-order flip robustness",
+   "upstream": "flip400 0.0300",
+   "measured": "not measured in this round",
+   "verdict": "UNTESTED (an earlier audit observed a 0.44 flip rate when the false/true option order of noul questions was reversed, a different protocol from flip400)"
+  },
+  {
+   "claim": "JevBench public-231 0.5108",
+   "upstream": "0.5108 (118/231), gate not passed",
+   "measured": "not measured — the row set is not in this repository",
+   "verdict": "UNTESTED"
+  },
+  {
+   "claim": "the plugin provides this gate",
+   "upstream": "the dsh-phocinae README still documents the escalate gate 0.1.2 never had",
+   "measured": "Phocinae/dsh-phocinae was last pushed 2026-10-08T02:23:13Z; its index.js, hooks/guard.js and tools/phocinae_ask.js are byte-identical to the 0.1.2 audited here",
+   "verdict": "STILL UNFIXED UPSTREAM — 0.2.1 in this repository is the only working build"
+  },
+  {
+   "claim": "is it as cheap as \"a local decision costs nothing\"?",
+   "upstream": "not stated",
+   "measured": "plugin adds 685 tokens to every request plus 234 per decision",
+   "verdict": "DISCLOSED HERE ONLY"
+  },
+  {
+   "claim": "is the gate worth its cost for safely?",
+   "upstream": "not stated",
+   "measured": "shipped default stops 100.0% of destructive commands (0 passed of 31), 6 of 22 benign sent to review, 15.7 ms, 0 conversation tokens",
+   "verdict": "DISCLOSED HERE ONLY"
+  }
+ ],
+ "agrees": 8,
+ "differs": 3,
+ "untested": 3
+}
