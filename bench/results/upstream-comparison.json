@@ -2,6 +2,7 @@
  "fetchedAt": "2026-10-08T05:22Z",
  "upstreamRepoPushedAt": "2026-10-08T05:22:52Z",
  "pluginRepoPushedAt": "2026-10-08T02:23:13Z",
+ "timeliness": "Historical comparison — do not read as current. fetchedAt is a hard-coded snapshot of the 2026-10-08 upstream fetch, not the run time of this script; re-running rewrites the same value. The `rows` group compares the 2026-10-08 upstream revision against 0.2.1-era measurements; `rowsV11` records the 2026-10-09 v1.1 figures as documented by the release — this repository did not re-measure v1.1, and its own retained readings (2026-10-08, pre-v1.1 weights) are quoted as such. UNTESTED rows were never measured and must stay UNTESTED when cited. The version anchors to cite live in the five READMEs.",
  "rows": [
   {
    "claim": "parameters 144.3M",
@@ -90,5 +91,70 @@
  ],
  "agrees": 8,
  "differs": 3,
- "untested": 3
+ "untested": 3,
+ "rowsV11": [
+  {
+   "claim": "typed-decisions en accuracy (v1.1)",
+   "upstream": "0.906",
+   "measured": "not re-measured in this repository — the v1.1 release documents a cold re-run of 0.9055; the last measurement here is 0.7825, from the 2026-10-08 audit round (pre-v1.1 weights, retained in the README measured column)",
+   "verdict": "UNTESTED for v1.1 in this repository — 0.9055 is upstream-recorded only"
+  },
+  {
+   "claim": "typed-decisions zh accuracy (v1.1)",
+   "upstream": "0.848",
+   "measured": "not re-measured in this repository — v1.1 documents 0.848 (machine-translated cases; in-mix/fitted evaluation, not cross-lingual transfer); the retained 2026-10-08 reading is 0.7820",
+   "verdict": "UNTESTED for v1.1 in this repository — 0.848 is upstream-recorded only"
+  },
+  {
+   "claim": "escalation rate at tau=0.6 (v1.1)",
+   "upstream": "45.0%",
+   "measured": "not re-measured in this repository — the retained 2026-10-08 audit measured 45.65% of decisions (43.00% zh) at tau=0.6",
+   "verdict": "UNTESTED for v1.1 in this repository — prior-round reading retained"
+  },
+  {
+   "claim": "LLM-call reduction at tau=0.6 (v1.1)",
+   "upstream": "−55.0%",
+   "measured": "not re-measured — 55.0% follows from the release-documented 45.0% escalated at tau=0.6; the retained 2026-10-08 sweep measured a 54.4% reduction there",
+   "verdict": "UNTESTED for v1.1 in this repository — prior-round 54.4% retained"
+  },
+  {
+   "claim": "kept-subset accuracy at tau=0.6 (v1.1)",
+   "upstream": "0.9936",
+   "measured": "not re-measured — v1.1 documents 0.9936; the retained 2026-10-08 reading is 0.8859",
+   "verdict": "UNTESTED for v1.1 in this repository"
+  },
+  {
+   "claim": "the 79.6% headline at tau≈0.50 (v1.1)",
+   "upstream": "−79.6% at tau=0.5 (20.4% escalated)",
+   "measured": "not re-measured — v1.1 documents 20.4% escalated / 79.6% kept local; the retained 2026-10-08 sweep measured 17.15% / 82.8% there",
+   "verdict": "UNTESTED for v1.1 in this repository (prior-round sweep retained)"
+  },
+  {
+   "claim": "CPU single-thread latency (v1.1)",
+   "upstream": "1.64 s/case",
+   "measured": "not re-measured — v1.1 documents 1.64 s/case; the retained 2026-10-08 audit measured 923.6 ms/case single-thread where the then-claim was 1.51 s/case",
+   "verdict": "UNTESTED for v1.1 in this repository — prior-round reading retained"
+  },
+  {
+   "claim": "GPU fp16 p50 latency (v1.1)",
+   "upstream": "21.0 ms on an RTX 5090",
+   "measured": "not measured in this repository — no CUDA device in this environment, and no latency run was added for v1.1; the only latency files under bench/results/ are from the 0.2.1 era",
+   "verdict": "UNTESTED"
+  },
+  {
+   "claim": "option-order flip robustness (v1.1)",
+   "upstream": "flip150 0.0200 · flip400 0.0217",
+   "measured": "not measured in this repository — flip150/flip400 are not run here",
+   "verdict": "UNTESTED (the earlier audit's 0.44 flip rate used a different protocol — reversed noul option order — not flip400)"
+  },
+  {
+   "claim": "JevBench public-231 (v1.1)",
+   "upstream": "0.5455 (126/231) — gate not passed",
+   "measured": "not measured in this repository — the row set is not here; disclosure: the public 58.4% gate is NOT passed",
+   "verdict": "UNTESTED here — when cited, the not-passed gate must be disclosed"
+  }
+ ],
+ "agreesV11": 0,
+ "differsV11": 0,
+ "untestedV11": 10
 }

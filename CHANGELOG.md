@@ -1,5 +1,24 @@
 # Changelog
 
+## [audit refresh] — 2026-10-09
+
+### Changed
+
+- **The published claims moved to the v1.1 figures; this repository's audit numbers did not
+  move.** The five READMEs now state the model's v1.1 numbers — typed-decisions en 0.906 /
+  zh 0.848 (was 0.797 / 0.789; zh is machine-translated cases), the E1 gate at τ=0.6 at
+  45.0% escalated / −55.0% LLM calls with 79.6% at τ≈0.50 and kept-subset 0.9936 (was
+  18% / 82% / 54.4% / 0.886), and the combined-accuracy claim 0.8737 (was 0.7948) — plus the
+  version anchors (v1.0 / v1.0 corrected / v1.1; the pre-correction 0.7948 / −82% / 18%
+  reading is deprecated upstream — do not cite). `SECURITY.md`: 144M → 144.3M.
+- **The audit records are retained and dated, not rewritten.** This repository's own
+  2026-10-08 measurements (the measured columns 0.7825 / 0.7820, the τ sweep, the 0.2.1
+  report) predate the v1.1 weights and are kept unchanged for audit trace; v1.1 was not
+  re-measured here. `bench/compare-upstream.mjs` gained a `rowsV11` group recording the
+  v1.1 figures as documented by the release (UNTESTED in this repository where nothing was
+  measured); `bench/results/upstream-comparison.json` carries a timeliness field; the 0.2.1
+  report is dated as a historical snapshot. Documentation only — no code changes.
+
 ## [0.2.2] — 2026-10-08
 
 ### Fixed
@@ -98,8 +117,9 @@ so a regression is a failing test rather than a silent behaviour change.
 ### Documentation
 
 - The README states the measured numbers next to the published ones, including where
-  they disagree: the model's "82% fewer LLM calls" belongs to τ≈0.50, while the frozen
-  E1 gate is τ=0.6, where the measured reduction is 54.4% (en) / 57.0% (zh).
+  they disagree: the model's "79.6% fewer LLM calls" saving belongs to τ≈0.50, while
+  the frozen E1 gate is τ=0.6, where this repository's retained 2026-10-08 measurement
+  is 54.4% (en) / 57.0% (zh).
 - `SECURITY.md` states plainly that the gate is a screening aid and not a sandbox.
 
 ## [0.1.2] — 2026-10-08

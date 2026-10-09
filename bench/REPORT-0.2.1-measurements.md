@@ -6,6 +6,8 @@
 - 对照大模型：`deepseek-flash`（`api.deepseek.com/v1`，`temperature=0`）
 - 工作负载：官方评测集 `datasets/typed_test/test_typed_400.jsonl`，**400 例 / 2000 个决策**
 
+> **时效声明（2026-10-09 加注）**：本报告是**历史快照**——记录的是 0.2.1 时期（2026-10-08）的一次性实测；其中的数字**不随上游更新而改写**，引用时请注明日期。第 9 节的上游对照对应 `bench/results/upstream-comparison.json`，其中 `fetchedAt` 是**硬编码快照时间**（上游 README 的抓取时刻，不是脚本运行时间）——重跑不会刷新它。当时未实测的项目（GPU fp16 延迟、flip400、JevBench 等）**保持 UNTESTED**：未补测之前，引用时不得写成已通过。模型侧数字此后已更新到 v1.1；当前有效引用以仓库五份 README 的「版本锚」和 `bench/compare-upstream.mjs` 的 `rowsV11` 组为准。
+
 ---
 
 ## 0. 先给结论

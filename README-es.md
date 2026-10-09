@@ -162,7 +162,9 @@ La publicación del modelo documenta una puerta E1: escalar una decisión a un m
 
 ## Comportamiento medido
 
-Todos los números de esta sección se produjeron en una sola máquina (CPU, fp32, Node 24) contra los pesos publicados, con los scripts de `bench/`; vuelve a ejecutarlos en tu propio hardware antes de confiar en ellos. Las cifras publicadas proceden de los propios documentos de la publicación del modelo.
+Las cifras medidas se produjeron en una sola máquina (CPU, fp32) contra los pesos publicados, con los scripts de `bench/`; vuelve a ejecutarlos en tu propio hardware antes de confiar en ellos. Las cifras publicadas proceden de los propios documentos de la publicación del modelo.
+
+**Anclas de versión.** v1.0 — primeras cifras publicadas. v1.0 corregida — cifras E1 corregidas (kept-subset 0.886, −54.4% de llamadas al LLM, 45.7% de escalado). v1.1 (2026-10-09) — versión de referencia (0.906 / 0.848, 45.0% de escalado / −55.0% de llamadas, kept-subset 0.9936). La lectura anterior a la corrección (0.7948 / −82% / 18%) está obsoleta en el upstream — no citar.
 
 ### Calidad de las decisiones — el modelo es honesto
 
@@ -170,11 +172,13 @@ Todos los números de esta sección se produjeron en una sola máquina (CPU, fp3
 
 | métrica | publicado (en) | medido (en) | publicado (zh) | medido (zh) |
 |---|---|---|---|---|
-| exactitud local | 0.797 | **0.7825** | 0.789 | **0.7820** |
-| tasa de escalado @ τ=0.6 | 18% | **45.65%** | 18% | **43.00%** |
+| exactitud local | 0.906 | **0.7825** | 0.848 | **0.7820** |
+| tasa de escalado @ τ=0.6 | 45.0% | **45.65%** | — | **43.00%** |
 | exactitud en las decisiones conservadas | — | 0.8859 | — | 0.9035 |
 
-La exactitud se reproduce dentro del propio ruido fp16/fp32 que declara la publicación. La tasa de escalado no, y los documentos publicados se contradicen entre sí al respecto: el titular *"82% menos llamadas al LLM"* es lo que se obtiene con **τ≈0.50**, mientras que la puerta E1 congelada que también documentan es **τ=0.6**:
+Las cifras zh son casos traducidos automáticamente; la mezcla de entrenamiento incluye chino traducido automáticamente (≈2,400 filas) más chino nativo (≈1,400 filas) — una evaluación in-mix (fitted), no transferencia entre idiomas.
+
+La columna medida recoge la ronda de auditoría del 2026-10-08 de este repositorio (pesos anteriores a la v1.1) y se conserva sin cambios — los números de auditoría no se reescriben, y aquí no se ha vuelto a medir la v1.1; consulta las anclas de versión para las cifras de la v1.1. El titular *"79.6% menos llamadas al LLM"* corresponde a **τ≈0.50**, mientras que la puerta E1 congelada es **τ=0.6** (τ se barre sobre el conjunto de evaluación — hay que volver a barrerlo por dominio; el barrido de abajo es la medición retenida del 2026-10-08):
 
 | τ | escaladas | llamadas al LLM evitadas | exactitud en las decisiones que se quedan en local |
 |---|---|---|---|
@@ -183,7 +187,7 @@ La exactitud se reproduce dentro del propio ruido fp16/fp32 que declara la publi
 | 0.70 | 67.15% | 32.9% | 0.9300 |
 | 0.80 | 81.70% | 18.3% | 0.9645 |
 
-**"82% de ahorro" y "τ=0.6" no pueden ser ciertos a la vez.** En el umbral que la publicación del modelo llama congelado, la reducción es del 54%. Sigue siendo un ahorro real, y el orden de confianza es genuinamente útil — la exactitud de lo que se queda en local sube de 0.78 a 0.96 a medida que sube el listón —, pero la cifra del titular pertenece a otro umbral.
+**"79.6% de ahorro" y "τ=0.6" no pueden ser ciertos a la vez.** En el umbral que la publicación del modelo llama congelado, la reducción es del 55.0%. Sigue siendo un ahorro real, y el orden de confianza es genuinamente útil — la exactitud de lo que se queda en local sube de 0.78 a 0.96 a medida que sube el listón —, pero la cifra del titular pertenece a otro umbral.
 
 ### Calidad de la puerta — y por qué cambió la pregunta por defecto
 
@@ -218,9 +222,9 @@ Una entrada que contenga un operador de shell se rechaza en el momento de la car
 | afirmación | veredicto |
 |---|---|
 | "modelo de decisión bilingüe de 144.3M, una pasada forward, local" | **verdadero** |
-| "decisiones tipadas en 0.797 / zh 0.789" | **se reproduce** (0.7825 / 0.7820) |
-| "reduce las llamadas al LLM un 82% con una puerta de confianza τ=0.6" | **falso tal como está escrito** — el 82% corresponde a τ≈0.50; con τ=0.6 es el 54% |
-| "el escalado mejora la exactitud combinada hasta 0.7948" | **consistente** — el escalado solo sustituye respuestas locales incorrectas |
+| "decisiones tipadas en 0.906 / zh 0.848" | **se reproduce, según lo registrado por el upstream** (0.9055 / 0.848; lectura retenida de este repositorio: 0.7825 / 0.7820) |
+| "reduce las llamadas al LLM un 79.6% con una puerta de confianza τ=0.6" | **falso tal como está escrito** — el 79.6% corresponde a τ≈0.50; con τ=0.6 es el 55.0% |
+| "el escalado mejora la exactitud combinada hasta 0.8737" | **consistente** — el escalado solo sustituye respuestas locales incorrectas |
 | "el complemento proporciona esta puerta" | **era falso en la 0.1.2** (recall 0.00, y nunca llegó a cargarse) |
 
 ---

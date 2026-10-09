@@ -79,7 +79,7 @@ The consequence is a design choice, not a tuning problem: the gate stops things,
 
 `phocinae_ask` returns, per batch: `escalate`, `escalatedIds`, `escalationReason`, `escalateAt`, and the calibrated `confidence` map.
 
-The plugin does not escalate anything itself. Escalating means spending someone else's tokens on a larger model, and a local gate has no business making that call. What it does is refuse to hide the uncertainty: a caller that wants the E1 routing reads `escalate` and decides. The docs are explicit about the arithmetic — at the τ=0.6 the model release calls frozen, the measured reduction is 54% of decisions, not the 82% that belongs to τ≈0.50.
+The plugin does not escalate anything itself. Escalating means spending someone else's tokens on a larger model, and a local gate has no business making that call. What it does is refuse to hide the uncertainty: a caller that wants the E1 routing reads `escalate` and decides. The docs are explicit about the arithmetic — at the τ=0.6 the model release calls frozen, the measured reduction is 55.0% of decisions, not the 79.6% that belongs to τ≈0.50.
 
 ## Failure design
 

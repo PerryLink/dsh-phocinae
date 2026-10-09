@@ -14,7 +14,7 @@ The plugin's position: that service must be the loopback decision model, and not
 
 The gate is a **screening aid**, not a security control.
 
-Measured on 53 labelled commands it stops 30 of 31 destructive ones. That is a good hit rate for a 144M-parameter model running locally in a millisecond; it is not a guarantee, and it is not a sandbox. A model that can be instructed in prose can be argued with in prose.
+Measured on 53 labelled commands it stops 30 of 31 destructive ones. That is a good hit rate for a 144.3M-parameter model running locally in a millisecond; it is not a guarantee, and it is not a sandbox. A model that can be instructed in prose can be argued with in prose.
 
 What the gate actually buys you:
 

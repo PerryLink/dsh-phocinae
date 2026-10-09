@@ -161,7 +161,9 @@ Model release में एक E1 gate का ज़िक्र है: जब 
 
 ## मापा गया व्यवहार
 
-यहाँ का हर आँकड़ा एक ही मशीन (CPU, fp32, Node 24) पर, release किए गए weights के साथ, `bench/` की scripts से बनाया गया है; इन पर भरोसा करने से पहले इन्हें अपने hardware पर दोबारा चलाएँ। Published figures model release के अपने documents से लिए गए हैं।
+मापे गए आँकड़े एक ही मशीन (CPU, fp32) पर, release किए गए weights के साथ, `bench/` की scripts से बनाए गए हैं; इन पर भरोसा करने से पहले इन्हें अपने hardware पर दोबारा चलाएँ। Published figures model release के अपने documents से लिए गए हैं।
+
+**Version anchors.** v1.0 — पहले प्रकाशित figures। v1.0 corrected — E1 numbers सुधारे गए (kept-subset 0.886, −54.4% LLM calls, 45.7% escalate)। v1.1 (2026-10-09) — release of record (0.906 / 0.848, 45.0% escalated / −55.0% calls, kept-subset 0.9936)। pre-correction reading (0.7948 / −82% / 18%) upstream में deprecated है — इसे cite न करें।
 
 ### निर्णय की गुणवत्ता — model ईमानदार है
 
@@ -169,11 +171,13 @@ Model release में एक E1 gate का ज़िक्र है: जब 
 
 | मापदंड | प्रकाशित (en) | मापा गया (en) | प्रकाशित (zh) | मापा गया (zh) |
 |---|---|---|---|---|
-| local accuracy | 0.797 | **0.7825** | 0.789 | **0.7820** |
-| escalation rate @ τ=0.6 | 18% | **45.65%** | 18% | **43.00%** |
+| local accuracy | 0.906 | **0.7825** | 0.848 | **0.7820** |
+| escalation rate @ τ=0.6 | 45.0% | **45.65%** | — | **43.00%** |
 | kept decisions पर accuracy | — | 0.8859 | — | 0.9035 |
 
-Accuracy तो release के खुद बताए fp16/fp32 noise के अंदर reproduce हो जाती है। Escalation rate नहीं होती, और release के documents इस पर आपस में ही नहीं मिलते: *"82% fewer LLM calls"* वाला headline **τ≈0.50** पर मिलता है, जबकि वही documents जिस frozen E1 gate का ज़िक्र करते हैं वह **τ=0.6** है:
+zh के आँकड़े machine-translated cases हैं; training mix में machine-translated चीनी (≈2,400 rows) और native चीनी (≈1,400 rows) दोनों शामिल हैं — यह एक in-mix (fitted) evaluation है, cross-lingual transfer नहीं।
+
+मापी गई column इस repository की 2026-10-08 audit round है (v1.1 से पहले के weights) और जैसी है वैसी रखी गई है — audit numbers दोबारा नहीं लिखे जाते, और यहाँ v1.1 दोबारा measure नहीं किया गया; v1.1 के figures के लिए version anchors देखें। *"79.6% fewer LLM calls"* वाला headline **τ≈0.50** पर मिलता है, जबकि frozen E1 gate **τ=0.6** है (τ eval set पर sweep किया गया — हर domain के लिए दोबारा sweep करें; नीचे की sweep 2026-10-08 की retained measurement है):
 
 | τ | escalated | LLM calls cut | local रखे गए decisions पर accuracy |
 |---|---|---|---|
@@ -182,7 +186,7 @@ Accuracy तो release के खुद बताए fp16/fp32 noise के अ
 | 0.70 | 67.15% | 32.9% | 0.9300 |
 | 0.80 | 81.70% | 18.3% | 0.9645 |
 
-**"82% saved" और "τ=0.6" — दोनों एक साथ सच नहीं हो सकते।** जिस threshold को model release frozen कहता है, उस पर कटौती 54% है। यह फिर भी असली बचत है, और confidence का क्रम वाक़ई उपयोगी है — जैसे-जैसे कसौटी ऊँची होती है, local रहने वाले decisions की accuracy 0.78 से 0.96 तक चढ़ती जाती है — लेकिन headline वाला आँकड़ा किसी और threshold का है।
+**"79.6% saved" और "τ=0.6" — दोनों एक साथ सच नहीं हो सकते।** जिस threshold को model release frozen कहता है, उस पर कटौती 55.0% है। यह फिर भी असली बचत है, और confidence का क्रम वाक़ई उपयोगी है — जैसे-जैसे कसौटी ऊँची होती है, local रहने वाले decisions की accuracy 0.78 से 0.96 तक चढ़ती जाती है — लेकिन headline वाला आँकड़ा किसी और threshold का है।
 
 ### Gate की गुणवत्ता — और default सवाल क्यों बदला
 
@@ -217,9 +221,9 @@ Shell operator वाली entry load के समय ही ठुकरा �
 | दावा | फैसला |
 |---|---|
 | "144.3M bilingual decision model, one forward pass, local" | **सच** |
-| "typed-decisions en 0.797 / zh 0.789" | **reproduce होता है** (0.7825 / 0.7820) |
-| "cuts LLM calls by 82% with a τ=0.6 confidence gate" | **जैसा लिखा है वैसा झूठा** — 82% तो τ≈0.50 पर है; τ=0.6 पर यह 54% है |
-| "escalation improves combined accuracy to 0.7948" | **संगत** — escalation सिर्फ़ गलत local उत्तरों की जगह लेता है |
+| "typed-decisions en 0.906 / zh 0.848" | **reproduce होता है, upstream record के अनुसार** (0.9055 / 0.848; इस repository की retained reading: 0.7825 / 0.7820) |
+| "cuts LLM calls by 79.6% with a τ=0.6 confidence gate" | **जैसा लिखा है वैसा झूठा** — 79.6% तो τ≈0.50 पर है; τ=0.6 पर यह 55.0% है |
+| "escalation improves combined accuracy to 0.8737" | **संगत** — escalation सिर्फ़ गलत local उत्तरों की जगह लेता है |
 | "the plugin provides this gate" | **0.1.2 के लिए झूठा था** (recall 0.00, और वह load ही नहीं हुआ) |
 
 ---

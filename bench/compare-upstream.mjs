@@ -1,12 +1,21 @@
 /**
  * Diff the upstream Phocinae claims against what this machine measured.
  *
- * The upstream README was rewritten on 2026-10-08 (repo pushed 05:22:52Z). This
- * script holds the updated claims as data, pairs each with the measurement that
- * tests it, and prints where they agree and where they do not.
+ * TIMELINESS — read this before quoting anything the script prints:
+ *   - This is a HISTORICAL comparison, not a live check. The `rows` group holds
+ *     the upstream README as fetched 2026-10-08T05:22Z (its v1.0-corrected
+ *     revision) against measurements saved under bench/results/ from the same
+ *     day; the `rowsV11` group records the 2026-10-09 v1.1 figures as documented
+ *     by the release. Nothing is re-fetched and nothing is re-measured — the
+ *     script only re-reads evidence that is already in this repository.
+ *   - For the figures to cite today, see the version anchors in the five READMEs
+ *     (v1.0 / v1.0 corrected / v1.1) together with the `rowsV11` group below.
+ *   - Rows whose verdict starts with UNTESTED were never measured here. They stay
+ *     UNTESTED until someone actually runs the measurement; do not cite them as
+ *     passing.
  *
- * The measurements come from the raw files under bench/results/, so this is a
- * re-reading of collected evidence, not a re-run.
+ * History: the upstream README was rewritten on 2026-10-08 (repo pushed
+ * 05:22:52Z) and refreshed again to v1.1 on 2026-10-09.
  *
  * Usage: node bench/compare-upstream.mjs
  */
@@ -165,6 +174,79 @@ const rows = [
   },
 ]
 
+/**
+ * rowsV11 — the 2026-10-09 v1.1 refresh, held to the same rules.
+ *
+ * Same shape as `rows`: an upstream claim, what this repository records, a
+ * verdict. This repository did not re-measure v1.1 — nothing under
+ * bench/results/ was produced with the v1.1 weights — so the `measured` strings
+ * quote only what is on record here (the 2026-10-08 audit) or the v1.1 figures
+ * as documented by the release, each labelled as such. Anything without such a
+ * record is UNTESTED. No value here was re-measured for this group, and none is
+ * invented.
+ */
+const rowsV11 = [
+  {
+    claim: 'typed-decisions en accuracy (v1.1)',
+    upstream: '0.906',
+    measured: 'not re-measured in this repository — the v1.1 release documents a cold re-run of 0.9055; the last measurement here is 0.7825, from the 2026-10-08 audit round (pre-v1.1 weights, retained in the README measured column)',
+    verdict: 'UNTESTED for v1.1 in this repository — 0.9055 is upstream-recorded only',
+  },
+  {
+    claim: 'typed-decisions zh accuracy (v1.1)',
+    upstream: '0.848',
+    measured: 'not re-measured in this repository — v1.1 documents 0.848 (machine-translated cases; in-mix/fitted evaluation, not cross-lingual transfer); the retained 2026-10-08 reading is 0.7820',
+    verdict: 'UNTESTED for v1.1 in this repository — 0.848 is upstream-recorded only',
+  },
+  {
+    claim: 'escalation rate at tau=0.6 (v1.1)',
+    upstream: '45.0%',
+    measured: 'not re-measured in this repository — the retained 2026-10-08 audit measured 45.65% of decisions (43.00% zh) at tau=0.6',
+    verdict: 'UNTESTED for v1.1 in this repository — prior-round reading retained',
+  },
+  {
+    claim: 'LLM-call reduction at tau=0.6 (v1.1)',
+    upstream: '−55.0%',
+    measured: 'not re-measured — 55.0% follows from the release-documented 45.0% escalated at tau=0.6; the retained 2026-10-08 sweep measured a 54.4% reduction there',
+    verdict: 'UNTESTED for v1.1 in this repository — prior-round 54.4% retained',
+  },
+  {
+    claim: 'kept-subset accuracy at tau=0.6 (v1.1)',
+    upstream: '0.9936',
+    measured: 'not re-measured — v1.1 documents 0.9936; the retained 2026-10-08 reading is 0.8859',
+    verdict: 'UNTESTED for v1.1 in this repository',
+  },
+  {
+    claim: 'the 79.6% headline at tau≈0.50 (v1.1)',
+    upstream: '−79.6% at tau=0.5 (20.4% escalated)',
+    measured: 'not re-measured — v1.1 documents 20.4% escalated / 79.6% kept local; the retained 2026-10-08 sweep measured 17.15% / 82.8% there',
+    verdict: 'UNTESTED for v1.1 in this repository (prior-round sweep retained)',
+  },
+  {
+    claim: 'CPU single-thread latency (v1.1)',
+    upstream: '1.64 s/case',
+    measured: 'not re-measured — v1.1 documents 1.64 s/case; the retained 2026-10-08 audit measured 923.6 ms/case single-thread where the then-claim was 1.51 s/case',
+    verdict: 'UNTESTED for v1.1 in this repository — prior-round reading retained',
+  },
+  {
+    claim: 'GPU fp16 p50 latency (v1.1)',
+    upstream: '21.0 ms on an RTX 5090',
+    measured: 'not measured in this repository — no CUDA device in this environment, and no latency run was added for v1.1; the only latency files under bench/results/ are from the 0.2.1 era',
+    verdict: 'UNTESTED',
+  },
+  {
+    claim: 'option-order flip robustness (v1.1)',
+    upstream: 'flip150 0.0200 · flip400 0.0217',
+    measured: 'not measured in this repository — flip150/flip400 are not run here',
+    verdict: 'UNTESTED (the earlier audit\'s 0.44 flip rate used a different protocol — reversed noul option order — not flip400)',
+  },
+  {
+    claim: 'JevBench public-231 (v1.1)',
+    upstream: '0.5455 (126/231) — gate not passed',
+    measured: 'not measured in this repository — the row set is not here; disclosure: the public 58.4% gate is NOT passed',
+    verdict: 'UNTESTED here — when cited, the not-passed gate must be disclosed',
+  },
+]
 console.log('upstream claims (README fetched 2026-10-08T05:22Z) vs measurement\n')
 let agrees = 0
 let differs = 0
@@ -183,6 +265,24 @@ for (const row of rows) {
 }
 console.log(`${agrees} agree, ${differs} need attention, ${untested} untested\n`)
 
+console.log('v1.1 claims (the 2026-10-09 refresh, as documented by the release — not re-measured in this repository)\n')
+let agreesV11 = 0
+let differsV11 = 0
+let untestedV11 = 0
+for (const row of rowsV11) {
+  const marker = row.verdict.startsWith('AGREES') ? '='
+    : (row.verdict.startsWith('UNTESTED') ? '?' : '!')
+  if (marker === '=') agreesV11 += 1
+  else if (marker === '?') untestedV11 += 1
+  else differsV11 += 1
+  console.log(`${marker} ${row.claim}`)
+  console.log(`    upstream : ${row.upstream}`)
+  console.log(`    recorded : ${row.measured}`)
+  console.log(`    verdict  : ${row.verdict}`)
+  console.log('')
+}
+console.log(`${agreesV11} agree, ${differsV11} need attention, ${untestedV11} untested\n`)
+
 // ------------------------------------------------------------------ what changed
 console.log('what the upstream rewrite changed, in its own words')
 console.log('  before : "Cuts LLM calls by 82% with a τ=0.6 confidence gate"')
@@ -198,10 +298,17 @@ console.log('0.886 is "accuracy on the decisions the gate kept local". Both are 
 console.log('answer different questions, and only the second is comparable across models.')
 
 const outPath = path.join(REPO, 'bench/results/upstream-comparison.json')
+// WARNING: `fetchedAt` below is a HARD-CODED snapshot — the moment the upstream
+// README was fetched (2026-10-08T05:22Z), never the time this script runs. Every
+// run re-writes the same value, so it must not be read as the file's recency. The
+// v1.1 figures (2026-10-09) live in `rowsV11` as documented by the release —
+// neither re-fetched nor re-measured here; UNTESTED stays UNTESTED.
 fs.writeFileSync(outPath, `${JSON.stringify({
   fetchedAt: '2026-10-08T05:22Z',
   upstreamRepoPushedAt: '2026-10-08T05:22:52Z',
   pluginRepoPushedAt: '2026-10-08T02:23:13Z',
+  timeliness: 'Historical comparison — do not read as current. fetchedAt is a hard-coded snapshot of the 2026-10-08 upstream fetch, not the run time of this script; re-running rewrites the same value. The `rows` group compares the 2026-10-08 upstream revision against 0.2.1-era measurements; `rowsV11` records the 2026-10-09 v1.1 figures as documented by the release — this repository did not re-measure v1.1, and its own retained readings (2026-10-08, pre-v1.1 weights) are quoted as such. UNTESTED rows were never measured and must stay UNTESTED when cited. The version anchors to cite live in the five READMEs.',
   rows, agrees, differs, untested,
+  rowsV11, agreesV11, differsV11, untestedV11,
 }, null, 1)}\n`, 'utf8')
 console.log(`\nwrote ${outPath}`)
