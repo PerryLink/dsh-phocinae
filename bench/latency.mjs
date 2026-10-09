@@ -6,6 +6,10 @@
  * claim on the same shape: the published 400-case row set, five questions per
  * case, one request per case, reporting p50/p90 per case and per decision.
  *
+ * v1.1 note (2026-10-09): the upstream release has since restated the CPU
+ * figure at 1.64 s per case. The 1.51 s / ≈0.28 s figures above are the
+ * 0.2.1-era claim kept as an audit record — not the current release statement.
+ *
  * Run it twice against differently configured servers to compare thread counts:
  *   PHOC_THREADS=1  python -m phocinae.main   -> single-thread claim
  *   (unset)         python -m phocinae.main   -> default torch threading
