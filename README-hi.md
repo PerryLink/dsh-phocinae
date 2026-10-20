@@ -1,256 +1,80 @@
 **English** · [中文](./README-zh.md) · [Español](./README-es.md) · [Português](./README-pt.md) · [हिन्दी](./README-hi.md)
 
+<img src="docs/assets/logo_phocinae.png" width="120" alt="Phocinae सील लोगो">
+
 # dsh-phocinae
 
-**DeepSeek Harness के लिए एक स्थानीय, नॉन-जनरेटिव decision layer।**
+**DeepSeek Harness के लिए स्थानीय, गैर-जनरेटिव निर्णय परत।** 150M मॉडल एक ही फ़ॉरवर्ड पास में हाँ/नहीं, एकल चयन और 2–10 स्कोर का उत्तर देता है, और fail-closed गेट टूल कॉल चलने से पहले उन्हें जाँचता है।
 
-`phocinae_ask` / `phocinae_gate` tools, जो एक [Phocinae-Largha-150M-v1](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) server पर टिके हैं — हाँ/ना के निर्णय, single-choice चुनाव और 2-10 तक के scores, हर एक के लिए एक forward pass, और वह भी आपकी ही मशीन पर — साथ में एक fail-closed approval gate जो tool calls को चलने से पहले छान लेता है।
+- आपकी मशीन पर चलता है; क्लाउड API या API key नहीं।
+- `phocinae_ask` बैच टाइप्ड निर्णयों के लिए; `phocinae_gate` एक कमांड/कार्रवाई के लिए।
+- गेट `tools/pre-execute` से जुड़ता है: सेवा उपलब्ध न हो तो व्यक्ति से पूछता है, चुपचाप अनुमति नहीं देता।
+- मॉडल लेख या कोड नहीं लिखता; एक संरचित निर्णय देता है।
 
-यह **0.2.2** है, एक repair release। 0.1.2 plugin DSH 0.2.x पर बिल्कुल activate ही नहीं हुआ: harness ने एक warning log की और entry दम तोड़ गई। *0.2.2 में क्या ठीक हुआ* section से नीचे का हर हिस्सा बताता है कि क्या बदला और क्यों।
+## त्वरित शुरुआत
 
 ```sh
-dsh plugin --profile <name> add dsh-phocinae@0.2.2
+pip install phocinae-server
+huggingface-cli download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./model
+PHOC_MODEL_DIR=./model python -m phocinae.main
+dsh plugin --profile web add dsh-phocinae@0.2.5
+curl http://127.0.0.1:8155/health
 ```
 
-Node `^22.19` या `>=24` चाहिए, और एक पहुँच में आने वाली decision service (देखें [Running the decision service](#running-the-decision-service))।
+`{"status":"ok","model_loaded":true}` का अर्थ सेवा तैयार है। `dsh-phocinae@0.2.5` पिन करें: बिना वर्ज़न `add dsh-phocinae` pnpm के `minimumReleaseAge` के कारण पुरानी बिल्ड पर जा सकता है।
 
-### सिर्फ़ `npm i` से plugin install नहीं होता
+## आपको क्या मिलता है
 
-दो अलग-अलग चीज़ें होनी ज़रूरी हैं, और plugin सिर्फ़ दूसरी वाली mount करती है:
-
-| चरण | यह क्या करता है |
+| सतह | क्या करती है |
 |---|---|
-| `npm i dsh-phocinae` | package को **मौजूदा directory के** `node_modules` में डालता है। Code पढ़ने या guard को सीधे import करने के लिए उपयोगी। यह किसी भी DSH profile तक **नहीं** पहुँचता। |
-| `dsh plugin --profile <name> add dsh-phocinae@0.2.2` | इसे **उस profile के** `package.json` में जोड़ता है (`dependencies` **और** `dsh.profile.bundles`) और pnpm से वहीं install करता है। यही वह चीज़ है जो host को इसे mount करने देती है। |
+| `phocinae_ask` | एक state पर 64 तक टाइप्ड प्रश्न; उत्तर, कैलिब्रेटेड confidence और सलाहकारी `escalate` फ़्लैग। |
+| `phocinae_gate` | एक कमांड/कार्रवाई को `allow`, `ask` या `deny` मानता है; चलाए बिना जाँचता है। |
+| `tools/pre-execute` गेट | `gate.tools` से मेल खाने वाली हर टूल कॉल को चलने से पहले जाँचता है; fail-closed। |
+| `phocinae` skill | मॉडल को बताती है कि स्थानीय निर्णय कब लें और `escalate` कैसे पढ़ें। |
 
-इस मशीन पर, एक throwaway `DSH_HOME` के साथ मापा गया:
+## उदाहरण
 
-- किसी असंबंधित directory में `npm i dsh-phocinae` → वहीं install हो गया, profile की `dependencies` अब भी `{}`, profile के `bundles` अपरिवर्तित, **`dsh <profile> --dump-config` में plugin मौजूद ही नहीं**;
-- `dsh plugin --profile p add dsh-phocinae` → profile को dependency और bundle entry, दोनों मिल जाती हैं, और composed config में endpoint के साथ `phocinae` row आ जाती है;
-- `dsh.profile.bundles` entry के **बिना** कोई dependency → install तो हो जाती है पर **mount नहीं होती**, क्योंकि loader जिस सूची पर चलता है वह bundle list ही है।
+एक state पर दो प्रश्न:
 
-### version pin करें
-
-`add dsh-phocinae` pnpm के supply-chain age gate
-(`minimumReleaseAge`) से resolve होता है। gate की threshold से नया कोई release
-चुना नहीं जाता, इसलिए **publish के बाद कुछ समय तक बिना version वाला नाम पिछले
-version पर ही resolve होता है** — और यहाँ पिछला version 0.1.2 है, जो काम नहीं करता।
-
-एक ही मशीन पर, कुछ मिनटों के अंतराल पर मापा गया:
-
-| कब | command | resolve हुआ |
-|---|---|---|
-| order 0.2.2 publish + 2 मिनट | `dsh plugin --profile p add dsh-phocinae` | **0.1.2** — `main: index.js`, वह build जो activate ही नहीं कर सकती |
-| वही, पर `add dsh-phocinae@0.2.2` | | **0.2.2** — `./index.mjs`, skill मौजूद |
-| वही, `minimumReleaseAge: 0` के साथ बिना version वाला add, profile के `pnpm-workspace.yaml` में | | **0.2.2** |
-| order 0.2.2 publish + 150 मिनट | `dsh plugin --profile p add dsh-phocinae` | **0.2.2** — `^0.2.2`, host साफ़ boot होता है |
-
-जब gate किसी version को रोक लेता है, तो harness उस इनकार को profile के
-`pnpm-workspace.yaml` में दर्ज कर देता है:
-
-```yaml
-minimumReleaseAgeExclude:
-  - dsh-phocinae@0.2.2
+```json
+{"state":"उपयोगकर्ता /tmp/build हटाना चाहता है। रास्ता workspace के अंदर है।","questions":[{"id":"safe","type":"noul","threshold":0.8},{"id":"urgency","type":"score"}]}
 ```
 
-Gate एक ठोस default है — बिल्कुल ताज़ा publish हुआ package supply-chain attack जैसा ही
-दिखता है। इसका मतलब यह ज़रूर है कि **version का नाम लेना चाहिए**, ताकि ठीक किया हुआ
-build तुरंत मिल जाए और install reproducible रहे:
+उत्तर का आकार:
 
-```sh
-dsh plugin --profile <name> add dsh-phocinae@0.2.2
+```json
+{"answers":{"safe":true,"urgency":4},"confidence":{"safe":0.92,"urgency":0.71},"escalate":false}
 ```
 
-अगर बिना version वाला add आपको 0.1.2 पर पहुँचा ही दे, तो `dsh <profile> --dump-config`
-दिखाता है कि कौन सा version mount है, और pinned spec के साथ दोबारा add करने पर वह बदल जाता है।
+खतरनाक कमांड जाँचें:
 
-Git और local checkouts भी उसी तरह काम करते हैं, और वे बनावट से ही pin होते हैं:
-
-```sh
-dsh plugin --profile <name> add github:Phocinae/dsh-phocinae#v0.2.2
-dsh plugin --profile <name> add /path/to/a/local/checkout
+```json
+{"command":"rm -rf /","toolName":"shell","cwd":"/home/me/project"}
 ```
 
----
+यह `decision: "deny"` कारण और confidence के साथ लौटाता है; कमांड कभी नहीं चलता। ये आउटपुट schema दिखाते हैं, रिकॉर्ड किया गया fixture नहीं।
 
-## यह क्या जोड़ता है
+## यह कैसे काम करता है
 
-| योगदान | seam | यह क्या करता है |
-|---|---|---|
-| `phocinae_ask` | `ctx.tools` | local model पर typed questions का एक batch चलाता है। हर उत्तर के साथ एक calibrated confidence और एक advisory `escalate` flag आता है। |
-| `phocinae_gate` | `ctx.tools` | एक command या action का फैसला करता है: `allow` / `ask` / `deny`, confidence के साथ। Action को चलाए बिना उसे जाँचता है। |
-| approval gate | `tools/pre-execute` waterfall | Configured patterns के दायरे में आने वाली हर tool call को execute होने से पहले छान लेता है। |
-| `phocinae` skill | `ctx.skills` | मॉडल को सिखाता है कि स्थानीय निर्णय कब सही साधन है, प्रश्न कैसे पूछना है, और `escalate` फ़्लैग कैसे पढ़ना है। |
-
-यह model chat model नहीं है। यह text generate नहीं करता, facts नहीं जानता और code नहीं लिख सकता। यह हर forward pass पर एक structured decision लेता है — एक gate को ठीक इतना ही चाहिए, इससे ज़्यादा कुछ नहीं।
-
----
-
-## 0.2.2 में क्या ठीक हुआ
-
-नीचे की हर बात `test/regressions.test.mjs` में एक test से reproduce होती है, जिनके नाम `D1`…`D12` हैं।
-
-### D1 — plugin कभी activate ही नहीं हुआ
-
-```
-dsh: warning: 1 entry did not activate
-phocinae (dsh-phocinae): Error: cannot get property "registerTool" without inject
-```
-
-`index.js` ने defensive check के तौर पर `typeof ctx.registerTool === 'function'` probe किया। Cordis context एक proxy है: किसी **undeclared** service का नाम पढ़ने पर `undefined` लौटने के बजाय error throw होता है। `registerTool` कोई DSH service नहीं है — registry `ctx.tools` पर रहता है — इसलिए यह probe plugin body की पहली ही line पर throw हो गया और पूरी entry को गिरा दिया, इससे पहले कि वह किसी चीज़ को subscribe कर पाती।
-
-**ठीक किया गया:** tool registration अब `ctx.inject(['tools'], …)` के ज़रिए service का इंतज़ार करता है। न कोई probe, न कोई undeclared read, और अगर service कभी आए ही नहीं तो भी plugin अपना gate तैयार कर लेता है।
-
-### D2 — tool definition का shape गलत था
-
-Definition में `{inputSchema, handler}` था। `ToolDefinition`, `ToolSchema` को extend करता है, जो `{name, description, parameters}` declare करता है, और registry `definition.parameters` पढ़ता है। पुराना shape register करने पर model-facing projection fail हो जाता है:
-
-```
-dsh: UNKNOWN: tool "phocinae_ask" parameters must be lossless JSON before schema projection
-```
-
-**ठीक किया गया:** definitions में अब `parameters` और `output: {schema, render}` के साथ `execute` भी है — सब कुछ harness के enforced JSON Schema subset के अंदर (`required` एक array के रूप में, unions के लिए `oneOf`, कोई author-only keyword नहीं)। `test/contract.test.mjs` उसी subset check को दोबारा implement करता है, और assembled-headless run असली host में definitions register करता है।
-
-### D3 — gate ने उत्तर गलत जगह से पढ़ा
-
-`data.answers` एक object है जिसकी keys question id होती हैं। 0.1.2 में `Array.isArray(data.answers) ? data.answers[0] : …` लिखा था, जो हर असली response के लिए `undefined` देता है।
-
-### D4 — और इसीलिए चुपचाप सब कुछ allow कर दिया
-
-Verdict की जाँच `if (risk === true)` थी। `risk` जब हमेशा `undefined` हो, तो यह सदा false रहती है, इसलिए `guard()` हर command के लिए `{decision: 'allow'}` लौटाता था, वजह के साथ *"the model judged this low risk"* — हर command के लिए, `rm -rf /` समेत।
-
-`bench/` के 53-command labelled set पर destructive commands की recall **0.00** थी।
-
-**ठीक किया गया:** answers अब id से पढ़े जाते हैं और उनका shape check होता है, malformed body default मानने के बजाय protocol error है, और gate **fail closed** करता है — unreachable service, गायब confidence extension, या unreadable body — तीनों ही मामले किसी इंसान तक पहुँचते हैं।
-
-### D5 — verdict throw होते थे, return नहीं
-
-Deny path `next(err)` call करता था। `tools/pre-execute` waterfall एक `PreToolDecision` (`{kind: 'allow' | 'deny' | 'ask', reason}`) की अपेक्षा करता है; waterfall को reject करना कोई decision नहीं है।
-
-**ठीक किया गया:** `{kind: 'deny', reason}` और `{kind: 'ask', reason, displayReason}`, तथा allow path पर `next()` ठीक एक बार call होता है।
-
-### D6 — `gate.tools` का default `['bash']` था
-
-Shell tool Windows पर `pwsh` है, बाक़ी जगह `bash`, और MCP servers अपने-अपने नाम जोड़ देते हैं। इस मशीन पर default किसी से match नहीं हुआ, इसलिए gate कभी चला ही नहीं।
-
-**ठीक किया गया:** default अब `['*']` है — यानी हर tool — और exact names, `*` globs तथा case-insensitive matching उपलब्ध हैं।
-
-### D7 — release notes में जिस escalation gate का वादा था, वह वहाँ था ही नहीं
-
-Model release में एक E1 gate का ज़िक्र है: जब `answer_confidence` τ से नीचे गिरे तो decision को किसी बड़े model तक escalate कर दो। `0.1.2` में न τ था, न confidence comparison, न कोई escalation branch — पूरे repository में `escalate` खोजने पर सिर्फ़ Python server मिला।
-
-**ठीक किया गया:** `phocinae_ask` अब `escalate`, `escalatedIds`, `escalationReason` और `escalateAt` लौटाता है, और gate उसी confidence को देखता है। Plugin अब भी escalation *करता* नहीं — वह आपकी ओर से किसी बड़े model को call नहीं कर सकता — लेकिन अब यह signal दावे के बजाय सचमुच पैदा होता है।
-
-### ब्रेकिंग बदलाव
-
-| बदलाव | 0.1.2 | 0.2.2 |
-|---|---|---|
-| tool registry | `ctx.registerTool` / `ctx.tools.register` probe | `ctx.inject(['tools'], …)` |
-| tool definition | `inputSchema` + `handler` | `parameters` + `output` + `execute` |
-| gate उत्तर का स्रोत | `answers[0]` (array) | `answers[id]` (object) |
-| failure की दिशा | हमेशा `allow` | default में `ask` (`gate.failMode`) |
-| tool match default | `['bash']` | `['*']` |
-| verdict | `next(err)` | `{kind, reason}` |
-| gate का सवाल | boolean `noul` | harm scale (`harmless`/`risky`/`destructive`) |
-| `gate.mode` default | `deny` | `harm` |
-| escalation | मौजूद नहीं | हर उत्तर पर `escalate` |
-
-`gate.failMode: 'open'` उस deployment के लिए पुराना हमेशा-allow वाला व्यवहार वापस ले आता है जिसे वह चाहिए। यह default नहीं है और इसे default नहीं बनना चाहिए।
-
----
-
-## मापा गया व्यवहार
-
-मापे गए आँकड़े एक ही मशीन (CPU, fp32) पर, release किए गए weights के साथ, `bench/` की scripts से बनाए गए हैं; इन पर भरोसा करने से पहले इन्हें अपने hardware पर दोबारा चलाएँ। Published figures model release के अपने documents से लिए गए हैं।
-
-**Version anchors.** v1.0 — पहले प्रकाशित figures। v1.0 corrected — E1 numbers सुधारे गए (kept-subset 0.886, −54.4% LLM calls, 45.7% escalate)। v1.1 (2026-10-09) — release of record (0.906 / 0.848, 45.0% escalated / −55.0% calls, kept-subset 0.9936)। pre-correction reading (0.7948 / −82% / 18%) upstream में deprecated है — इसे cite न करें।
-
-### निर्णय की गुणवत्ता — model ईमानदार है
-
-`datasets/typed_test/test_typed_400.jsonl`, 400 cases × 5 questions = 2000 decisions, हर decision को `gold.label` के सामने परखा गया:
-
-| मापदंड | प्रकाशित (en) | मापा गया (en) | प्रकाशित (zh) | मापा गया (zh) |
-|---|---|---|---|---|
-| local accuracy | 0.906 | **0.7825** | 0.848 | **0.7820** |
-| escalation rate @ τ=0.6 | 45.0% | **45.65%** | — | **43.00%** |
-| kept decisions पर accuracy | — | 0.8859 | — | 0.9035 |
-
-zh के आँकड़े machine-translated cases हैं; training mix में machine-translated चीनी (≈2,400 rows) और native चीनी (≈1,400 rows) दोनों शामिल हैं — यह एक in-mix (fitted) evaluation है, cross-lingual transfer नहीं।
-
-मापी गई column इस repository की 2026-10-08 audit round है (v1.1 से पहले के weights) और जैसी है वैसी रखी गई है — audit numbers दोबारा नहीं लिखे जाते, और यहाँ v1.1 दोबारा measure नहीं किया गया; v1.1 के figures के लिए version anchors देखें। *"79.6% fewer LLM calls"* वाला headline **τ≈0.50** पर मिलता है, जबकि frozen E1 gate **τ=0.6** है (τ eval set पर sweep किया गया — हर domain के लिए दोबारा sweep करें; नीचे की sweep 2026-10-08 की retained measurement है):
-
-| τ | escalated | LLM calls cut | local रखे गए decisions पर accuracy |
-|---|---|---|---|
-| 0.50 | 17.15% | **82.8%** | 0.8214 |
-| **0.60** | **45.65%** | **54.4%** | 0.8859 |
-| 0.70 | 67.15% | 32.9% | 0.9300 |
-| 0.80 | 81.70% | 18.3% | 0.9645 |
-
-**"79.6% saved" और "τ=0.6" — दोनों एक साथ सच नहीं हो सकते।** जिस threshold को model release frozen कहता है, उस पर कटौती 55.0% है। यह फिर भी असली बचत है, और confidence का क्रम वाक़ई उपयोगी है — जैसे-जैसे कसौटी ऊँची होती है, local रहने वाले decisions की accuracy 0.78 से 0.96 तक चढ़ती जाती है — लेकिन headline वाला आँकड़ा किसी और threshold का है।
-
-### Gate की गुणवत्ता — और default सवाल क्यों बदला
-
-`bench/gate-bench.mjs`, 53 commands (31 destructive, 22 routine), सब असली model के खिलाफ़। `recall` उन destructive commands का हिस्सा है जिन्हें gate रोकता है; `auto-pass purity` बताती है कि pass हुई command असल में कितनी बार सुरक्षित थी।
-
-| gate का सवाल | destructive पर recall | भरोसे के साथ pass हुईं, पर destructive थीं |
-|---|---|---|
-| `noul` — "should this be blocked?" (0.1.2 का default) | **0.00** | — |
-| `tri-state` — allow / ask / deny | **0.74** | 1 |
-| **`harm` — harmless / risky / destructive (0.2.2 default)** | **0.97** | **0** |
-
-विरासत में मिला यह boolean सवाल सिर्फ़ कमज़ोर नहीं है, उल्टा है: इसने **31 में से हर एक destructive command** pass कर दिया, ज़्यादातर 0.54 से 0.80 के बीच confidence के साथ। "is this safe?" पूछना तो और भी बुरा है — 31 में से 27 pass हो गए, confidence 0.87 तक पहुँच गया। मापी गई formulations में harm scale अकेली ऐसी है जिसने लगभग सब कुछ पकड़ा और किसी destructive command को भरोसे के साथ कभी पार नहीं जाने दिया।
-
-इसकी एकमात्र चूक, `vssadmin delete shadows /all /quiet`, confidence से नहीं, auto-allow list के operator नियम से पकड़ी जाती है, इसलिए set में कोई भी destructive command execution तक नहीं पहुँचता।
-
-### Confidence सिमटी हुई है: gate को संकीर्ण रखें
-
-Model की confidence routine commands को risky commands से इतना अलग नहीं कर पाती कि वह general-purpose filter बन सके। इसके `harmless` verdict ज़्यादातर 0.27–0.54 में बैठते हैं, इसलिए जो gate `git status` के बारे में इसे पूछता, वह `git status` को किसी इंसान के पास भेज देता।
-
-इसीलिए `0.2.2` एक **auto-allow list** के साथ आता है: बिना shell operator वाले read-only और build/test commands model तक पहुँचते ही नहीं। Gate का काम चीज़ों को रोकना है, नियमित कामों को approve करना नहीं:
-
-- list में नाम है, कोई operator नहीं → local पर ही pass, न request, न latency
-- ऐसा कुछ भी जिसमें `;&|><`$(){}\[\]` आदि हों → list bypass हो जाती है और फैसला model करता है
-- model कहे `destructive` → deny
-- model कहे `risky`, या `harmless` `gate.minConfidence` से नीचे → फैसला इंसान करता है
-- service unreachable → फैसला इंसान करता है
-
-Shell operator वाली entry load के समय ही ठुकरा दी जाती है। `git status && rm -rf /` एक allow-listed prefix से शुरू होता है, इसलिए ऐसा pattern स्वीकार करना list में ही एक bypass बना देता।
-
-### दावों का ईमानदार सार
-
-| दावा | फैसला |
-|---|---|
-| "144.3M bilingual decision model, one forward pass, local" | **सच** |
-| "typed-decisions en 0.906 / zh 0.848" | **reproduce होता है, upstream record के अनुसार** (0.9055 / 0.848; इस repository की retained reading: 0.7825 / 0.7820) |
-| "cuts LLM calls by 79.6% with a τ=0.6 confidence gate" | **जैसा लिखा है वैसा झूठा** — 79.6% तो τ≈0.50 पर है; τ=0.6 पर यह 55.0% है |
-| "escalation improves combined accuracy to 0.8737" | **संगत** — escalation सिर्फ़ गलत local उत्तरों की जगह लेता है |
-| "the plugin provides this gate" | **0.1.2 के लिए झूठा था** (recall 0.00, और वह load ही नहीं हुआ) |
-
----
+1. होस्ट `phocinae_ask`, `phocinae_gate` या pre-execute गेट कॉल करता है।
+2. प्लगइन कच्चा state `http://127.0.0.1:8155/v1/systemone` पर भेजता है।
+3. सेवा हर प्रश्न के लिए एक संरचित उत्तर देती है।
+4. गेट उसे `allow` / `ask` / `deny` में बदलता है; कम confidence `escalate` बनती है, और सेवा न पहुँचे तो `failMode: closed` में `ask` बनता है।
 
 ## कॉन्फ़िगरेशन
 
-Defaults `cordis.patch.yml` में रहते हैं और `lib/config.mjs` में documented हैं। हर key का एक default है, इसलिए bundle patch को घटाकर `enabled: true` तक लाया जा सकता है।
+डिफ़ॉल्ट `cordis.patch.yml` और `lib/config.mjs` में हैं। हर key का डिफ़ॉल्ट है।
 
-| key | default | अर्थ |
+| Key | डिफ़ॉल्ट | अर्थ |
 |---|---|---|
-| `endpoint` | `http://127.0.0.1:8155/v1/systemone` | decision service। **सिर्फ़ loopback** — decision state में raw tool-call text होता है, इसलिए remote host load-time error है, जब तक `allowRemoteEndpoint: true` न हो। |
-| `model` | `Phocinae-Largha-150M-v1` | serve किए गए model का नाम |
-| `timeoutMs` | `3000` | प्रति request; एक ही attempt, कोई retry नहीं |
-| `escalateAt` | `0.6` | इससे नीचे की confidence उत्तर को `escalate: true` चिह्नित कर देती है |
-| `maxStateChars` | `4096` | render किए गए decision state पर सीमा |
-| `permuteChoice` | `false` | choice questions का permutation-average (4x forwards) |
-| `gate.enabled` | `true` | pre-execute gate तैयार करें |
-| `gate.mode` | `harm` | `harm` / `tri-state` / `noul` / `off` |
-| `gate.threshold` | `0.8` | सिर्फ़ `noul` mode: P(risky) जिसे positive signal गिना जाए |
-| `gate.minConfidence` | `0.45` | इससे नीचे `allow` review बन जाता है |
-| `gate.autoAllow` | देखें `DEFAULT_AUTO_ALLOW` | वे commands जो model से पूछे बिना pass हो जाती हैं |
-| `gate.tools` | `['*']` | screen होने वाले tool names: exact, `*` globs, या `*` |
-| `gate.failMode` | `closed` | `closed` = unreachable service इंसान से पूछती है; `open` = allow |
-| `gate.riskyDecision` | `deny` | सिर्फ़ `noul` mode: positive finding पर `deny` या `ask` |
-| `gate.audit` | `true` | हर verdict को host logger से log करें |
+| `endpoint` | `http://127.0.0.1:8155/v1/systemone` | निर्णय सेवा। `allowRemoteEndpoint: true` के बिना केवल loopback। |
+| `timeoutMs` | `3000` | प्रति अनुरोध; एक प्रयास। |
+| `escalateAt` | `0.6` | इससे कम confidence `escalate: true` करता है। |
+| `gate.mode` | `harm` | `harm`, `tri-state`, `noul` या `off`. |
+| `gate.tools` | `['*']` | जाँचने वाले टूल: सटीक नाम, glob या `*`. |
+| `gate.failMode` | `closed` | सेवा न पहुँचे तो `closed` व्यक्ति से पूछता है; `open` अनुमति देता है। |
 
-कुछ भी screen न करना हो और सिर्फ़ tools इस्तेमाल करने हों:
+केवल टूल चलाएँ, गेट बंद रखें:
 
 ```yaml
 - id: phocinae
@@ -259,59 +83,28 @@ Defaults `cordis.patch.yml` में रहते हैं और `lib/config.
       mode: off
 ```
 
-सिर्फ़ shell screen करना हो, और सिर्फ़ पूछना हो:
+## सुरक्षा और सीमाएँ
 
-```yaml
-- id: phocinae
-  config:
-    gate:
-      tools: ['pwsh', 'bash']
-      riskyDecision: ask
-```
+- **केवल loopback।** state में कच्चा टूल कॉल टेक्स्ट है; स्पष्ट अनुमति के बिना गैर-loopback endpoint लोड त्रुटि है।
+- **Fail-closed।** सेवा त्रुटि/timeout जाँची गई कॉल व्यक्ति को भेजती है; अनुपस्थित टूल नाम सुरक्षित नहीं माना जाता।
+- **यह sandbox नहीं है।** गेट अतिरिक्त अनुमोदन संकेत है, होस्ट sandbox या मानव अनुमोदन का विकल्प नहीं।
+- **सामग्री नहीं बनाता।** मॉडल ज्ञान प्रश्न, कोड या सारांश नहीं देता; उसके लिए chat मॉडल लें।
 
----
+## संगतता
 
-## Decision service चलाना
+- Node `^22.19` या `>=24`.
+- DSH `>=0.2.1-0 <0.3.0`; bundle पंक्ति `phocinae_ask`, `phocinae_gate`, गेट और skill माउंट करती है।
+- `phocinae-server` कॉन्फ़िगर किए endpoint पर पहुँचना चाहिए।
 
-Plugin एक local server से बात करता है; यह खुद weights load नहीं करता।
+## समस्या निवारण
 
-```sh
-# weights (the reference download is ~330 MB)
-huggingface-cli download Phocinae/Phocinae-Largha-150M-v1 --local-dir ./model
-# (modelscope hosts the same repo: modelscope download --model PerryLink/Phocinae-Largha-150M-v1)
-
-pip install phocinae-server
-PHOC_MODEL_DIR=./model python -m phocinae.main
-```
-
-`GET http://127.0.0.1:8155/health` का जवाब `{"status":"ok","model_loaded":true}` आने का मतलब है कि service चालू है। इसके बिना `phocinae_ask` उस command का नाम लेते हुए `PHOCINAE_SERVICE_UNAVAILABLE` error लौटाता है, और gate हर screened call किसी इंसान तक भेज देता है।
-
----
-
-## डेवलपमेंट
-
-```sh
-npm test                  # unit + contract tests, no network, no model
-npm run test:integration  # gate over real HTTP, then a real dsh host boot
-npm run bench:gate        # the gate benchmark (needs the real service)
-```
-
-`npm run test:integration` system temp directory के नीचे एक throwaway `DSH_HOME` बनाता है, इसलिए यह आपकी अपनी profiles को कभी पढ़ता या लिखता नहीं। इसका पहला हिस्सा असली gate को असली HTTP पर एक fake service के खिलाफ़ चलाता है; दूसरा हिस्सा plugin को उसी throwaway profile में install करता है और असली `dsh` boot करता है, यह जाँचते हुए कि हर bundle entry activate होती है — यही वह check है जिसमें 0.1.2 फेल हो जाता।
-
-Fake service इसलिए है क्योंकि असली service को 330 MB का checkpoint चाहिए। Harness को किसी चल रहे असली service की ओर `--real-endpoint http://127.0.0.1:8155/v1/systemone` से इंगित करें।
-
----
-
-## दस्तावेज़ीकरण
-
-| doc | विषय-वस्तु |
+| लक्षण | समाधान |
 |---|---|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | mounting contract, gate का decision order, और हर चुनाव क्यों किया गया |
-| [SECURITY.md](./SECURITY.md) | trust boundaries, मशीन से क्या बाहर जाता है, और failure modes |
-| [CHANGELOG.md](./CHANGELOG.md) | release history |
-| [bench/](./bench) | benchmark scripts और उनके सहेजे गए नतीजे |
-| [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) | दोबारा इस्तेमाल किया गया काम और उसके licences |
+| `PHOCINAE_SERVICE_UNAVAILABLE` | सेवा शुरू करें और `curl http://127.0.0.1:8155/health` जाँचें। |
+| बिना वर्ज़न add पुराना वर्ज़न लाता है | `dsh-phocinae@0.2.5` से फिर इंस्टॉल करें; `dsh --profile web --dump-config` देखें। |
+| गेट हर चीज़ पूछता है | सेवा चल रही है या नहीं देखें; `failMode: closed` में सेवा बंद होना जानबूझकर पूछता है। |
+| गेट बहुत सख्त/ढीला है | `gate.mode`, `gate.tools`, `gate.minConfidence`, `gate.autoAllow` समायोजित करें; बिना सोचे बंद न करें। |
 
 ## लाइसेंस
 
-Apache-2.0 — देखें [LICENSE](./LICENSE)। Model weights भी Apache-2.0 हैं; model के बारे में अधिकार model card का है, और plugin के बारे में इस repository का।
+Apache-2.0. मॉडल कार्ड और सर्वर अलग परियोजनाएँ हैं: [Phocinae-Largha-150M-v1](https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1) और [phocinae-server](https://github.com/Phocinae/phocinae-server).

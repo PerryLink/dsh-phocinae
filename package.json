@@ -1,7 +1,7 @@
 {
   "name": "dsh-phocinae",
   "description": "Local non-generative decision layer for DeepSeek Harness: the phocinae_ask / phocinae_gate tools backed by a Phocinae-Largha-150M-v1 server, plus a fail-closed approval gate on tools/pre-execute with a calibrated-confidence escalation signal",
-  "version": "0.2.2",
+  "version": "0.2.5",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Phocinae/dsh-phocinae.git"
@@ -40,7 +40,8 @@
     "CHANGELOG.md",
     "SECURITY.md",
     "LICENSE",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "docs/assets"
   ],
   "dsh": {
     "manifestVersion": 1,
@@ -63,7 +64,7 @@
   ],
   "engines": {
     "node": "^22.19.0 || >=24.0.0",
-    "dsh": ">=0.1.6-0 <0.2.0 || >=0.2.0-0 <0.3.0"
+    "dsh": ">=0.2.1-0 <0.3.0"
   },
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
