@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-label="dsh-phocinae: tools/pre-execute to /v1/systemone to allow / ask / deny">
+<title>dsh-phocinae decision path</title>
+<rect width="1200" height="400" rx="18" fill="#ffffff"/>
+<text x="80" y="62" fill="#1f2328" font-family="ui-sans-serif,system-ui,sans-serif" font-size="30" font-weight="700">dsh-phocinae</text>
+<text x="80" y="96" fill="#57606a" font-family="ui-monospace,monospace" font-size="16">tools/pre-execute · 127.0.0.1:8155/v1/systemone · failMode: closed</text>
+<line x1="80" y1="118" x2="1120" y2="118" stroke="#d0d7de"/>
+<rect x="80" y="150" width="215" height="96" rx="14" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
+<text x="187" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">tools/pre-execute</text>
+<text x="187" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">gate.tools</text>
+<path d="M303 198h42" stroke="#57606a" stroke-width="3"/>
+<path d="M343 191l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="355" y="150" width="215" height="96" rx="14" fill="#f6f8fa" stroke="#4B67B4" stroke-width="2"/>
+<text x="462" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">POST /v1/systemone</text>
+<text x="462" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">127.0.0.1:8155</text>
+<path d="M578 198h42" stroke="#57606a" stroke-width="3"/>
+<path d="M618 191l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="630" y="150" width="215" height="96" rx="14" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
+<text x="737" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="14" font-weight="700">Phocinae-Largha-150M-v1</text>
+<text x="737" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">harmless·risky·destructive</text>
+<path d="M853 198h42" stroke="#57606a" stroke-width="3"/>
+<path d="M893 191l10 7-10 7" fill="none" stroke="#57606a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="905" y="150" width="215" height="96" rx="14" fill="#f6f8fa" stroke="#16a34a" stroke-width="2"/>
+<text x="1012" y="190" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">allow / ask / deny</text>
+<text x="1012" y="218" fill="#57606a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">failMode: closed</text>
+<rect x="80" y="283" width="535" height="54" rx="12" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
+<text x="347" y="317" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13">phocinae_ask · noul · choice · score · escalateAt 0.6</text>
+<rect x="650" y="283" width="505" height="54" rx="12" fill="#f6f8fa" stroke="#4B67B4" stroke-width="2"/>
+<text x="902" y="317" fill="#1f2328" text-anchor="middle" font-family="ui-monospace,monospace" font-size="13">decision-service-unavailable → ask</text>
+<path d="M187 246v37" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
+<path d="M1012 246v37" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
+<text x="80" y="376" fill="#57606a" font-family="ui-monospace,monospace" font-size="13">gate.autoAllow · gate.minConfidence 0.45 · gate.audit · Phocinae-Largha-150M-v1</text>
+</svg>

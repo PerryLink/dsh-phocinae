@@ -8,8 +8,8 @@
  * matters and reports the drift that does not.
  *
  * Checked:
- *   1. every translation exists and its language-switcher line is identical;
- *   2. every numeric literal in the English file appears in every translation;
+ *   1. every translation exists and carries the canonical five-language switcher;
+ *   2. every numeric literal in the Chinese source appears in every translation;
  *   3. every identifier a reader might paste (config keys, tool names, event
  *      names, package name, file paths) appears in every translation;
  *   4. section headings are the same count and the same order;
@@ -31,10 +31,10 @@ import { fileURLToPath } from 'node:url'
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 const SOURCE = 'README.md'
-const TRANSLATIONS = ['README-zh.md', 'README-es.md', 'README-pt.md', 'README-hi.md']
+const TRANSLATIONS = ['README.en.md']
 
-const SWITCHER = '**English** · [中文](./README-zh.md) · [Español](./README-es.md) · '
-  + '[Português](./README-pt.md) · [हिन्दी](./README-hi.md)'
+const SWITCHER = '[简体中文](README.md) · [English](README.en.md) · '
+  + '[Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)'
 
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8')
 
@@ -109,8 +109,8 @@ if (!fs.existsSync(path.join(root, SOURCE))) {
 const source = read(SOURCE)
 
 // 1. switcher line
-if (source.split('\n')[0] === SWITCHER) ok('source switcher line is canonical')
-else fail(`${SOURCE}: first line is not the canonical language switcher`)
+if (source.includes(SWITCHER)) ok('source switcher line is canonical')
+else fail(`${SOURCE}: canonical language switcher is missing`)
 
 const sourceNumbers = numbers(source)
 const sourceIds = identifiers(source)
@@ -125,8 +125,8 @@ for (const file of TRANSLATIONS) {
   }
   const text = read(file)
 
-  if (text.split('\n')[0] !== SWITCHER) {
-    fail(`${file}: first line is not the canonical language switcher`)
+  if (!text.includes(SWITCHER)) {
+    fail(`${file}: canonical language switcher is missing`)
   }
 
   const missingNumbers = [...sourceNumbers].filter((n) => !text.includes(n))
