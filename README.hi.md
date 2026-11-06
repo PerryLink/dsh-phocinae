@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-flow-dark.svg">
-  <img src="docs/assets/dsh-phocinae-flow-light.svg" width="100%" alt="dsh-phocinae निर्णय मार्ग: tools/pre-execute गेट → 127.0.0.1:8155/v1/systemone पर POST → harm स्केल → allow / ask / deny; निर्णय सेवा उपलब्ध न हो तो व्यक्ति से पूछा जाता है">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-hero-en-dark.webp">
+  <img src="docs/assets/dsh-phocinae-hero-en-light.webp" width="100%" alt="dsh-phocinae हीरो: बाईं ओर टूल चलने से पहले स्थानीय निर्णय का विचार; दाईं ओर निर्णय-पत्र, जहाँ लूपबैक सेवा एक shell कमांड को destructive मानकर deny मुहर लगाती है, विश्वास-सीमा और केवल निर्णय दर्ज करने वाली ऑडिट पंक्ति के साथ">
 </picture>
 
 # dsh-phocinae
@@ -32,6 +32,11 @@ dsh plugin --profile <name> add dsh-phocinae
 <sub>सामुदायिक प्लगइन, DeepSeek से आधिकारिक रूप से संबद्ध नहीं। एकमात्र रेपो: <https://github.com/PerryLink/dsh-phocinae> (Gitee प्रतिबिंब है)। निर्णय मॉडल और सर्वर अलग परियोजनाएँ हैं: <https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1>।</sub>
 
 ## यह क्या है
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-phocinae-flow-v5-light.svg" width="100%" alt="dsh-phocinae संरचना: टूल कॉल पहले तीन ऐसे निकासों से गुजरता है जो कोई अनुरोध नहीं भेजते (गेट बंद, टूल मेल नहीं, कमांड allow-सूची में); बचे हुए ही स्थानीय लूपबैक सेवा को POST करते हैं, जिसका harm उत्तर विश्वास-सीमा के साथ allow / ask / deny में बदलता है। अपठनीय उत्तर की अपनी fail-closed पंक्ति है और वह ask बनता है; अंत में PreToolDecision लौटता है">
+</picture>
 
 `dsh-phocinae` एक फ़ैसला बड़े मॉडल से ले लेता है: टूल चलने से पहले होस्ट कच्ची कॉल स्थानीय `phocinae-server` को देता है, जहाँ 150M पैरामीटर वाला गैर-जनरेटिव मॉडल एक ही फ़ॉरवर्ड पास में संरचित उत्तर (हाँ/नहीं, एकल चयन, 2–10 स्कोर) कैलिब्रेटेड confidence के साथ लौटाता है। गेट उस उत्तर को `allow` / `ask` / `deny` में बदलता है; वह केवल निर्णय देता है — चलाता नहीं, लिखता नहीं, समझाता नहीं।
 
@@ -333,7 +338,7 @@ npm pack                          # प्रकाशित tarball
 | `lib/errors.mjs` | संरचित त्रुटि कोड |
 | `skills/phocinae/SKILL.md` | skill पाठ: कब उपयोग करें, `escalate` कैसे पढ़ें |
 
-README की तस्वीरें [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से बनती हैं (Python + Pillow; CJK फ़ॉन्ट न मिले तो स्पष्ट त्रुटि देकर रुकता है): `python scripts/gen-readme-assets.py` दोबारा चलाया जा सकता है और `docs/assets/dsh-phocinae-flow-{light,dark}.svg` तथा `docs/assets/dsh-phocinae-evidence-{zh,en}-{light,dark}.webp` लिखता है।
+README की तस्वीरें [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से बनती हैं (Python + Pillow; CJK फ़ॉन्ट न मिले तो स्पष्ट त्रुटि देकर रुकता है): `python scripts/gen-readme-assets.py` दोबारा चलाया जा सकता है और `docs/assets/dsh-phocinae-hero-{zh,en}-{light,dark}.webp` तथा `docs/assets/dsh-phocinae-flow-v5-{light,dark}.svg` लिखता है; `--evidence` अलग से `docs/assets/dsh-phocinae-evidence-{zh,en}-{light,dark}.webp` फिर बनाता है।
 
 Topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `phocinae`, `decision-model`, `approval-gate`, `pre-tool-use`, `escalation`, `tool-routing`, `local-inference`, `cordis-plugin`
 

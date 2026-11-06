@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-flow-dark.svg">
-  <img src="docs/assets/dsh-phocinae-flow-light.svg" width="100%" alt="Fluxo de decisão do dsh-phocinae: portão tools/pre-execute → POST para 127.0.0.1:8155/v1/systemone → escala harm → allow / ask / deny; se o serviço não responde, uma pessoa decide">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-hero-en-dark.webp">
+  <img src="docs/assets/dsh-phocinae-hero-en-light.webp" width="100%" alt="Capa do dsh-phocinae: à esquerda, a proposta de decidir localmente antes de executar; à direita, um dossiê de veredito em que o serviço de loopback julga um comando shell como destrutivo e carimba deny, com o piso de confiança e uma linha de auditoria que registra apenas o veredito">
 </picture>
 
 # dsh-phocinae
@@ -32,6 +32,11 @@ dsh plugin --profile <name> add dsh-phocinae
 <sub>Plugin da comunidade, sem relação com a DeepSeek. Repositório canônico: <https://github.com/PerryLink/dsh-phocinae> (o Gitee é um espelho). O modelo e o servidor são projetos separados: <https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1>.</sub>
 
 ## O que é
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-phocinae-flow-v5-light.svg" width="100%" alt="Estrutura do dsh-phocinae: a chamada passa por três saídas que não fazem requisição (portão desligado, ferramenta não coberta, comando na lista de permissão); só as sobreviventes fazem POST ao serviço local, cuja resposta harm é lida contra o piso de confiança para allow / ask / deny. Uma resposta ilegível tem sua própria linha de falha fechada e vira ask; o veredito sai como PreToolDecision">
+</picture>
 
 `dsh-phocinae` tira um julgamento das mãos do modelo grande: antes de uma ferramenta rodar, o host entrega a chamada bruta a um `phocinae-server` local, onde um modelo não generativo de 150M parâmetros devolve uma resposta estruturada (sim/não, escolha única, nota 2–10) em uma passada, com confiança calibrada. O portão mapeia essa resposta para `allow` / `ask` / `deny`; ele julga, não executa, não gera e não explica.
 
@@ -333,7 +338,7 @@ Sem etapa de build: ESM puro, `index.mjs`, `tools.mjs` e `lib/` são os artefato
 | `lib/errors.mjs` | Códigos de erro estruturados |
 | `skills/phocinae/SKILL.md` | Texto da skill: quando usar, como ler `escalate` |
 
-As imagens do README são geradas por [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python + Pillow; aborta se não achar fonte CJK): `python scripts/gen-readme-assets.py` pode ser reexecutado e grava `docs/assets/dsh-phocinae-flow-{light,dark}.svg` e `docs/assets/dsh-phocinae-evidence-{zh,en}-{light,dark}.webp`.
+As imagens do README são geradas por [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python + Pillow; aborta se não achar fonte CJK): `python scripts/gen-readme-assets.py` pode ser reexecutado e grava `docs/assets/dsh-phocinae-hero-{zh,en}-{light,dark}.webp` e `docs/assets/dsh-phocinae-flow-v5-{light,dark}.svg`; `--evidence` também redesenha `docs/assets/dsh-phocinae-evidence-{zh,en}-{light,dark}.webp`.
 
 Topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `phocinae`, `decision-model`, `approval-gate`, `pre-tool-use`, `escalation`, `tool-routing`, `local-inference`, `cordis-plugin`
 

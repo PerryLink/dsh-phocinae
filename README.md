@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-flow-dark.svg">
-  <img src="docs/assets/dsh-phocinae-flow-light.svg" width="100%" alt="dsh-phocinae 决策流：tools/pre-execute 门 → POST 到 127.0.0.1:8155/v1/systemone → harm 量表 → allow / ask / deny；决策服务不可达时转人工">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-hero-zh-dark.webp">
+  <img src="docs/assets/dsh-phocinae-hero-zh-light.webp" width="100%" alt="dsh-phocinae 配图：左侧是它在工具执行前做本机判断的定位；右侧是一张裁决单，shell 的危险命令经本机回环服务判为 destructive，盖下 deny，标出置信度下限，底部是只记录裁决的审计行">
 </picture>
 
 # dsh-phocinae
@@ -32,6 +32,11 @@ dsh plugin --profile <name> add dsh-phocinae
 <sub>社区插件，与 DeepSeek 官方无关。唯一仓库：<https://github.com/PerryLink/dsh-phocinae>（Gitee 为镜像）。决策模型与服务是独立项目：<https://huggingface.co/Phocinae/Phocinae-Largha-150M-v1>。</sub>
 
 ## 它是什么
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-phocinae-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-phocinae-flow-v5-light.svg" width="100%" alt="dsh-phocinae 结构图：工具调用先经过三道不发请求的出口（门关闭、工具不匹配、命令在白名单），幸存者才 POST 到本机回环服务；答案按 harm 等级 × 置信度下限查表得到 allow / ask / deny，服务不可达单独一行落到 ask（failMode: closed），最后以 PreToolDecision 交回宿主">
+</picture>
 
 `dsh-phocinae` 把「一次判断」从大模型手里拿走：宿主在工具执行前把原始调用交给本机 `phocinae-server`，一个 150M 参数的非生成式模型用一次前向返回结构化答案（是/否、单选、2–10 评分），附校准置信度。门把答案映射成 `allow` / `ask` / `deny`；它只判断，不执行、不生成、不解释。
 
@@ -333,7 +338,7 @@ npm pack                          # 发布 tarball
 | `lib/errors.mjs` | 结构化错误码 |
 | `skills/phocinae/SKILL.md` | skill 文本：何时用、怎么读 `escalate` |
 
-配图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python + Pillow，缺 CJK 字体会直接报错退出）：`python scripts/gen-readme-assets.py` 可重复执行，输出 `docs/assets/dsh-phocinae-flow-{light,dark}.svg` 与 `docs/assets/dsh-phocinae-evidence-{zh,en}-{light,dark}.webp`。
+配图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python + Pillow，缺 CJK 字体会直接报错退出）：`python scripts/gen-readme-assets.py` 可重复执行，输出 `docs/assets/dsh-phocinae-hero-{zh,en}-{light,dark}.webp` 与 `docs/assets/dsh-phocinae-flow-v5-{light,dark}.svg`；`--evidence` 另外重绘 `docs/assets/dsh-phocinae-evidence-{zh,en}-{light,dark}.webp`。
 
 Topics：`dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `phocinae`, `decision-model`, `approval-gate`, `pre-tool-use`, `escalation`, `tool-routing`, `local-inference`, `cordis-plugin`
 
