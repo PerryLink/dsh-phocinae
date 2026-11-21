@@ -47,6 +47,11 @@ dsh plugin --profile <name> add dsh-phocinae
 
 ## 三步上手
 
+
+![dsh-phocinae 真实终端运行](docs/assets/dsh-phocinae-demo.gif)
+
+*本仓库真实运行的动图回放（2026-11-21）。*
+
 1. **起服务并装上插件**。服务是前置：插件本身不做推理。
 
    ```sh

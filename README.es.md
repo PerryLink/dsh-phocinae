@@ -38,6 +38,11 @@ dsh plugin --profile <name> add dsh-phocinae
   <img src="docs/assets/dsh-phocinae-flow-v5-light.svg" width="100%" alt="Estructura de dsh-phocinae: la llamada pasa por tres salidas que no emiten ninguna petición (puerta desactivada, herramienta no incluida, comando en la lista blanca); solo las que sobreviven hacen POST al servicio local, cuya respuesta harm se contrasta con el umbral de confianza para dar allow / ask / deny. Una respuesta ilegible tiene su propia fila de fallo cerrado y se convierte en ask; el veredicto sale como PreToolDecision">
 </picture>
 
+![dsh-phocinae: ejecución real de terminal](docs/assets/dsh-phocinae-demo.gif)
+
+*Repetición animada de una ejecución real de este repositorio (2026-11-21).*
+
+
 `dsh-phocinae` le quita un juicio al modelo grande: antes de que se ejecute una herramienta, el host entrega la llamada bruta a un `phocinae-server` local, donde un modelo no generativo de 150M parámetros devuelve una respuesta estructurada (sí/no, opción única, puntuación 2–10) en una sola pasada, con una confianza calibrada. La puerta mapea esa respuesta a `allow` / `ask` / `deny`; juzga, no ejecuta, no genera y no explica.
 
 - **Sirve para**: comprobaciones frecuentes, umbralizables y repetibles — preselección de aprobaciones, enrutado, clasificación por lotes, puntuación de riesgo.

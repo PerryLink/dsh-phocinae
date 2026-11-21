@@ -47,6 +47,11 @@ Path of one decision: the host calls `phocinae_ask`, `phocinae_gate`, or the aut
 
 ## Three-step setup
 
+
+![dsh-phocinae: real terminal run](docs/assets/dsh-phocinae-demo.gif)
+
+*Animated replay of a real run in this repository (2026-11-21).*
+
 1. **Start the service and install the plugin.** The service comes first: the plugin does no inference itself.
 
    ```sh
