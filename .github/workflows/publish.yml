@@ -42,7 +42,12 @@ jobs:
           if [ -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]; then echo "OIDC request TOKEN: present"; else echo "OIDC request TOKEN: MISSING"; fi
 
       - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            printf '//registry.npmjs.org/:_authToken=%s\n' "$NODE_AUTH_TOKEN" > .npmrc
+          fi
           version="$(node -p "require('./package.json').version")"
           if npm view "dsh-phocinae@${version}" version >/dev/null 2>&1; then
             echo "dsh-phocinae@${version} is already published; skipping npm publish"
