@@ -44,6 +44,7 @@ jobs:
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_LOGLEVEL: verbose
         run: |
           if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
             printf '//registry.npmjs.org/:_authToken=%s\n' "$NODE_AUTH_TOKEN" > .npmrc
@@ -68,8 +69,6 @@ jobs:
               exit "$status"
             fi
           fi
-        env:
-          NPM_CONFIG_LOGLEVEL: verbose
 
   # npm publish alone leaves every release without a GitHub Release page. This job
   # closes that gap and is idempotent, so re-running a tag is safe.
