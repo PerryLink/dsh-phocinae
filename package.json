@@ -4,11 +4,11 @@
   "version": "0.2.7",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Phocinae/dsh-phocinae.git"
+    "url": "git+https://github.com/PerryLink/dsh-phocinae.git"
   },
-  "homepage": "https://github.com/Phocinae/dsh-phocinae#readme",
+  "homepage": "https://github.com/PerryLink/dsh-phocinae#readme",
   "bugs": {
-    "url": "https://github.com/Phocinae/dsh-phocinae/issues"
+    "url": "https://github.com/PerryLink/dsh-phocinae/issues"
   },
   "author": "PerryLink",
   "type": "module",
