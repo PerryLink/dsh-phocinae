@@ -1,7 +1,7 @@
 {
   "name": "dsh-phocinae",
   "description": "Local non-generative decision layer for DeepSeek Harness: the phocinae_ask / phocinae_gate tools backed by a Phocinae-Largha-150M-v1 server, plus a fail-closed approval gate on tools/pre-execute with a calibrated-confidence escalation signal",
-  "version": "0.2.5",
+  "version": "0.2.7",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Phocinae/dsh-phocinae.git"
@@ -22,7 +22,8 @@
     "./lib/protocol.mjs": "./lib/protocol.mjs",
     "./lib/guard.mjs": "./lib/guard.mjs",
     "./cordis.patch.yml": "./cordis.patch.yml",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "index.mjs",
@@ -41,7 +42,9 @@
     "SECURITY.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
-    "docs/assets"
+    "docs/assets",
+    "locale/*.json",
+    "icon.png"
   ],
   "dsh": {
     "manifestVersion": 1,
@@ -69,7 +72,7 @@
   ],
   "engines": {
     "node": "^22.19.0 || >=24.0.0",
-    "dsh": ">=0.2.1-0 <0.3.0"
+    "dsh": ">=0.2.1-0 <0.3.0 || >=0.2.3-0 <0.3.0-0"
   },
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
@@ -95,5 +98,6 @@
   "funding": {
     "type": "individual",
     "url": "https://github.com/sponsors/PerryLink"
-  }
+  },
+  "icon": "icon.png"
 }

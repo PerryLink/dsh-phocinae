@@ -163,7 +163,7 @@ COPY = {
         value_kind="cjk_bold", value_size=32,
         subtitle="非生成式：只回结构化答案，不写作、不总结、不解释",
         sub_kind="cjk", sub_size=25,
-        footer="dsh plugin --profile web add dsh-phocinae@0.2.5",
+        footer="dsh plugin --profile web add dsh-phocinae@0.2.7",
     ),
     "en": dict(
         kicker="DSH PLUGIN · LOCAL DECISION LAYER",
@@ -173,10 +173,10 @@ COPY = {
         value_kind="en_bold", value_size=30,
         subtitle="No cloud API, no generation tokens; answers only",
         sub_kind="en", sub_size=25,
-        footer="dsh plugin --profile web add dsh-phocinae@0.2.5",
+        footer="dsh plugin --profile web add dsh-phocinae@0.2.7",
     ),
 }
-META = "v0.2.5 · DSH ≥0.2.1 <0.3.0 · Node ^22.19 · Apache-2.0"
+META = "v0.2.7 · DSH ≥0.2.1 <0.3.0 · Node ^22.19 · Apache-2.0"
 
 TEXT_MAX = 664
 

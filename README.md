@@ -11,6 +11,8 @@
 
 面向 DeepSeek Harness 的非生成式决策层：`phocinae_ask` 回答批量的是/否、单选与 2–10 评分，`phocinae_gate` 与 `tools/pre-execute` 门把同一个判断变成 `allow` / `ask` / `deny`，服务不可达时转人工而不是静默放行。
 
+最近一次核验：DeepSeek Harness `dsh-v0.2.3-alpha.1`（2026-11-22）。
+
 [安装](#三步上手) · [配置](#配置) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -47,7 +49,6 @@ dsh plugin --profile <name> add dsh-phocinae
 
 ## 三步上手
 
-
 ![dsh-phocinae 真实终端运行](docs/assets/dsh-phocinae-demo.gif)
 
 *本仓库真实运行的动图回放（2026-11-21）。*
@@ -61,12 +62,12 @@ dsh plugin --profile <name> add dsh-phocinae
    PHOC_MODEL_DIR=./model python -m phocinae.main
 
    # 2) 插件（三选一）
-   dsh plugin --profile web add dsh-phocinae@0.2.5                # npm 通道，固定版本
+   dsh plugin --profile web add dsh-phocinae@0.2.7                # npm 通道，固定版本
    dsh plugin --profile web add github:PerryLink/dsh-phocinae     # git 通道，最新 main
    dsh plugin --profile web add ./dsh-phocinae-<version>.tgz      # tarball 通道：npm pack 后
    ```
 
-   > 请固定 `@0.2.5`：直接 `add dsh-phocinae` 可能在 pnpm 的 `minimumReleaseAge` 窗口内解析到更旧的构建。无构建步骤——`index.mjs`、`tools.mjs` 与 `lib/` 即发布产物。
+   > 请固定 `@0.2.7`：直接 `add dsh-phocinae` 可能在 pnpm 的 `minimumReleaseAge` 窗口内解析到更旧的构建。无构建步骤——`index.mjs`、`tools.mjs` 与 `lib/` 即发布产物。
 
 2. **最小配置**（bundle patch 已自动插入一行，默认即可用；要显式写就这样）：
 
@@ -259,7 +260,7 @@ dsh plugin --profile <name> add dsh-phocinae
 | 症状 | 处理 |
 |---|---|
 | `PHOCINAE_SERVICE_UNAVAILABLE` | 启动服务并检查 `curl http://127.0.0.1:8155/health` |
-| 直接 add 装到旧版本 | 用 `dsh-phocinae@0.2.5` 重新安装；`dsh --profile web --dump-config` 确认实际版本 |
+| 直接 add 装到旧版本 | 用 `dsh-phocinae@0.2.7` 重新安装；`dsh --profile web --dump-config` 确认实际版本 |
 | 审批门什么都问 | 先确认服务在跑；`failMode: closed` 下服务不可达本来就会转人工，这是设计而不是故障 |
 | 审批门太严或太松 | 调 `gate.mode`、`gate.tools`、`gate.minConfidence`、`gate.autoAllow`；需要「每条都有人看」时把 `gate.autoAllow` 设为 `[]`，代价是良性命令全部转人工 |
 

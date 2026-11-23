@@ -11,6 +11,8 @@
 
 A non-generative decision layer for DeepSeek Harness: `phocinae_ask` answers batched yes/no, single-choice and 2–10 score questions, while `phocinae_gate` and the `tools/pre-execute` gate turn the same judgement into `allow` / `ask` / `deny` — and an unreachable service routes to a human instead of letting the call through silently.
 
+Last verified on DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [Install](#three-step-setup) · [Configuration](#configuration) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -47,7 +49,6 @@ Path of one decision: the host calls `phocinae_ask`, `phocinae_gate`, or the aut
 
 ## Three-step setup
 
-
 ![dsh-phocinae: real terminal run](docs/assets/dsh-phocinae-demo.gif)
 
 *Animated replay of a real run in this repository (2026-11-21).*
@@ -61,12 +62,12 @@ Path of one decision: the host calls `phocinae_ask`, `phocinae_gate`, or the aut
    PHOC_MODEL_DIR=./model python -m phocinae.main
 
    # 2) the plugin (pick one)
-   dsh plugin --profile web add dsh-phocinae@0.2.5                # npm channel, pinned
+   dsh plugin --profile web add dsh-phocinae@0.2.7                # npm channel, pinned
    dsh plugin --profile web add github:PerryLink/dsh-phocinae     # git channel, latest main
    dsh plugin --profile web add ./dsh-phocinae-<version>.tgz      # tarball channel: after npm pack
    ```
 
-   > Pin `@0.2.5`: a bare `add dsh-phocinae` can resolve to an older build while pnpm's `minimumReleaseAge` window holds a fresh release back. No build step — `index.mjs`, `tools.mjs` and `lib/` are the shipped artifacts.
+   > Pin `@0.2.7`: a bare `add dsh-phocinae` can resolve to an older build while pnpm's `minimumReleaseAge` window holds a fresh release back. No build step — `index.mjs`, `tools.mjs` and `lib/` are the shipped artifacts.
 
 2. **Minimal config** (the bundle patch already inserts a row, so the defaults work; spell it out like this if you prefer):
 
@@ -259,7 +260,7 @@ You can pipe `escalate` into a large model, but do the arithmetic first: the loc
 | Symptom | Fix |
 |---|---|
 | `PHOCINAE_SERVICE_UNAVAILABLE` | Start the service and check `curl http://127.0.0.1:8155/health` |
-| A bare add installs an old version | Re-add with `dsh-phocinae@0.2.5`; confirm the version via `dsh --profile web --dump-config` |
+| A bare add installs an old version | Re-add with `dsh-phocinae@0.2.7`; confirm the version via `dsh --profile web --dump-config` |
 | The gate asks about everything | Confirm the service is up; under `failMode: closed` an unreachable service deliberately asks — that is the design, not a bug |
 | The gate is too strict or too loose | Tune `gate.mode`, `gate.tools`, `gate.minConfidence`, `gate.autoAllow`; when every command must be seen by a human set `gate.autoAllow` to `[]`, at the cost of review for all benign commands |
 

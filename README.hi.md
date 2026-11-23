@@ -11,6 +11,10 @@
 
 DeepSeek Harness के लिए गैर-जनरेटिव निर्णय परत: `phocinae_ask` हाँ/नहीं, एकल चयन और 2–10 स्कोर वाले प्रश्नों के बैच का उत्तर देता है, और `phocinae_gate` तथा `tools/pre-execute` गेट उसी निर्णय को `allow` / `ask` / `deny` में बदल देते हैं; सेवा उपलब्ध न हो तो कॉल चुपचाप आगे बढ़ने के बजाय व्यक्ति के पास जाती है।
 
+अंतिम सत्यापन: DeepSeek Harness.
+
+अंतिम सत्यापन: DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [इंस्टॉल](#तीन-चरणों-में-शुरुआत) · [कॉन्फ़िगरेशन](#कॉन्फ़िगरेशन) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -42,7 +46,6 @@ dsh plugin --profile <name> add dsh-phocinae
 
 *इस रिपॉज़िटरी के असली रन का एनिमेटेड रीप्ले (2026-11-21)।*
 
-
 `dsh-phocinae` एक फ़ैसला बड़े मॉडल से ले लेता है: टूल चलने से पहले होस्ट कच्ची कॉल स्थानीय `phocinae-server` को देता है, जहाँ 150M पैरामीटर वाला गैर-जनरेटिव मॉडल एक ही फ़ॉरवर्ड पास में संरचित उत्तर (हाँ/नहीं, एकल चयन, 2–10 स्कोर) कैलिब्रेटेड confidence के साथ लौटाता है। गेट उस उत्तर को `allow` / `ask` / `deny` में बदलता है; वह केवल निर्णय देता है — चलाता नहीं, लिखता नहीं, समझाता नहीं।
 
 - **किसके लिए ठीक है**: बार-बार होने वाली, थ्रेशोल्ड पर तय होने वाली और दोहराई जा सकने वाली जाँचें — अनुमोदन की पूर्व-जाँच, रूटिंग, बैच वर्गीकरण, जोखिम स्कोरिंग।
@@ -61,12 +64,12 @@ dsh plugin --profile <name> add dsh-phocinae
    PHOC_MODEL_DIR=./model python -m phocinae.main
 
    # 2) प्लगइन (एक चुनें)
-   dsh plugin --profile web add dsh-phocinae@0.2.5                # npm चैनल, संस्करण पिन
+   dsh plugin --profile web add dsh-phocinae@0.2.7                # npm चैनल, संस्करण पिन
    dsh plugin --profile web add github:PerryLink/dsh-phocinae     # git चैनल, नवीनतम main
    dsh plugin --profile web add ./dsh-phocinae-<version>.tgz      # tarball चैनल: npm pack के बाद
    ```
 
-   > `@0.2.5` पिन करें: बिना संस्करण वाला `add dsh-phocinae` pnpm की `minimumReleaseAge` विंडो में पुरानी बिल्ड पर जा सकता है। कोई बिल्ड चरण नहीं — `index.mjs`, `tools.mjs` और `lib/` ही प्रकाशित आर्टिफ़ैक्ट हैं।
+   > `@0.2.7` पिन करें: बिना संस्करण वाला `add dsh-phocinae` pnpm की `minimumReleaseAge` विंडो में पुरानी बिल्ड पर जा सकता है। कोई बिल्ड चरण नहीं — `index.mjs`, `tools.mjs` और `lib/` ही प्रकाशित आर्टिफ़ैक्ट हैं।
 
 2. **न्यूनतम कॉन्फ़िगरेशन** (bundle patch पहले से एक पंक्ति जोड़ता है, इसलिए डिफ़ॉल्ट काम करते हैं; स्पष्ट लिखना हो तो ऐसे):
 
@@ -259,7 +262,7 @@ dsh plugin --profile <name> add dsh-phocinae
 | लक्षण | समाधान |
 |---|---|
 | `PHOCINAE_SERVICE_UNAVAILABLE` | सेवा शुरू करें और `curl http://127.0.0.1:8155/health` जाँचें |
-| बिना संस्करण add पुराना संस्करण लाता है | `dsh-phocinae@0.2.5` से फिर इंस्टॉल करें; `dsh --profile web --dump-config` से संस्करण देखें |
+| बिना संस्करण add पुराना संस्करण लाता है | `dsh-phocinae@0.2.7` से फिर इंस्टॉल करें; `dsh --profile web --dump-config` से संस्करण देखें |
 | गेट हर चीज़ पूछता है | जाँचें कि सेवा चल रही है; `failMode: closed` में सेवा बंद होना जानबूझकर पूछता है — यह डिज़ाइन है, ख़राबी नहीं |
 | गेट बहुत सख़्त या बहुत ढीला है | `gate.mode`, `gate.tools`, `gate.minConfidence`, `gate.autoAllow` समायोजित करें; अगर हर कमांड किसी व्यक्ति को दिखना चाहिए तो `gate.autoAllow` को `[]` करें, पर तब सुरक्षित कमांड भी समीक्षा में जाएँगे |
 

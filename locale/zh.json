@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Phocinae 决策层",
+    "description": "在工具真正执行之前，让本机 150M 参数模型给每个调用一次结构化裁决——不调云 API，不花生成 token。"
+  }
+}

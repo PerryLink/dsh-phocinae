@@ -11,6 +11,10 @@
 
 Uma camada de decisão não generativa para o DeepSeek Harness: `phocinae_ask` responde lotes de perguntas sim/não, de escolha única e de nota 2–10, enquanto `phocinae_gate` e o portão `tools/pre-execute` transformam o mesmo julgamento em `allow` / `ask` / `deny`; um serviço inacessível manda a chamada para uma pessoa em vez de liberá-la em silêncio.
 
+Última verificação: DeepSeek Harness.
+
+Última verificação: DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [Instalação](#instalação-em-três-passos) · [Configuração](#configuração) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -42,7 +46,6 @@ dsh plugin --profile <name> add dsh-phocinae
 
 *Repetição animada de uma execução real deste repositório (2026-11-21).*
 
-
 `dsh-phocinae` tira um julgamento das mãos do modelo grande: antes de uma ferramenta rodar, o host entrega a chamada bruta a um `phocinae-server` local, onde um modelo não generativo de 150M parâmetros devolve uma resposta estruturada (sim/não, escolha única, nota 2–10) em uma passada, com confiança calibrada. O portão mapeia essa resposta para `allow` / `ask` / `deny`; ele julga, não executa, não gera e não explica.
 
 - **Serve para**: verificações frequentes, limitáveis por limiar e repetíveis — pré-triagem de aprovação, roteamento, classificação em lote, pontuação de risco.
@@ -61,12 +64,12 @@ Caminho de uma decisão: o host chama `phocinae_ask`, `phocinae_gate`, ou o port
    PHOC_MODEL_DIR=./model python -m phocinae.main
 
    # 2) o plugin (escolha um)
-   dsh plugin --profile web add dsh-phocinae@0.2.5                # canal npm, versão fixada
+   dsh plugin --profile web add dsh-phocinae@0.2.7                # canal npm, versão fixada
    dsh plugin --profile web add github:PerryLink/dsh-phocinae     # canal git, main mais recente
    dsh plugin --profile web add ./dsh-phocinae-<version>.tgz      # canal tarball: após npm pack
    ```
 
-   > Fixe `@0.2.5`: um `add dsh-phocinae` sem versão pode resolver para uma build antiga enquanto a janela `minimumReleaseAge` do pnpm segura uma release recente. Sem etapa de build: `index.mjs`, `tools.mjs` e `lib/` são os artefatos publicados.
+   > Fixe `@0.2.7`: um `add dsh-phocinae` sem versão pode resolver para uma build antiga enquanto a janela `minimumReleaseAge` do pnpm segura uma release recente. Sem etapa de build: `index.mjs`, `tools.mjs` e `lib/` são os artefatos publicados.
 
 2. **Configuração mínima** (o bundle patch já insere uma linha, então os padrões funcionam; para explicitar, assim):
 
@@ -259,7 +262,7 @@ Dá para ligar `escalate` a um modelo grande, mas faça as contas primeiro: o mo
 | Sintoma | Correção |
 |---|---|
 | `PHOCINAE_SERVICE_UNAVAILABLE` | Suba o serviço e confira `curl http://127.0.0.1:8155/health` |
-| Add sem versão instala versão antiga | Reinstale com `dsh-phocinae@0.2.5`; confirme a versão em `dsh --profile web --dump-config` |
+| Add sem versão instala versão antiga | Reinstale com `dsh-phocinae@0.2.7`; confirme a versão em `dsh --profile web --dump-config` |
 | O portão pergunta por tudo | Confirme que o serviço está no ar; com `failMode: closed` um serviço caído pergunta de propósito: é o desenho, não um defeito |
 | O portão é rígido ou frouxo demais | Ajuste `gate.mode`, `gate.tools`, `gate.minConfidence`, `gate.autoAllow`; se todo comando precisa passar por uma pessoa, ponha `gate.autoAllow` em `[]`, ao custo de revisar também os benignos |
 

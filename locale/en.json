@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Phocinae",
+    "description": "Let a local 150M decision model rule on every tool call before it runs — no cloud API, no generated tokens."
+  }
+}
